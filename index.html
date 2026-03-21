@@ -1,0 +1,1981 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ProspectCall ☎️</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+  /* ==========================================================
+     VARIABLES & RESET
+  ========================================================== */
+  :root {
+    --sky-light:   #A8D8F0;
+    --sky-mid:     #5AAFD4;
+    --sky-deep:    #2E7FB5;
+    --sky-deeper:  #1A5F8A;
+    --sky-darkest: #0F3A5C;
+    --accent:      #FF7B54;
+    --accent-dark: #E85F35;
+    --success:     #3DD4AC;
+    --success-dk:  #23B891;
+    --warning:     #F59E0B;
+    --danger:      #EF4444;
+    --purple:      #8B5CF6;
+    --orange:      #F97316;
+    --gray:        #94A3B8;
+    --text-dark:   #0F2040;
+    --text-mid:    #3D5166;
+    --text-light:  #7A92A8;
+    --white:       #FFFFFF;
+    --glass-bg:    rgba(255,255,255,0.14);
+    --glass-bdr:   rgba(255,255,255,0.28);
+    --card-bg:     rgba(255,255,255,0.94);
+    --card-bdr:    rgba(255,255,255,0.72);
+    --sh-xl:       0 24px 64px rgba(15,32,64,0.22);
+    --sh-lg:       0 12px 40px rgba(15,32,64,0.16);
+    --sh-md:       0 6px 24px rgba(15,32,64,0.10);
+    --sh-sm:       0 2px 10px rgba(15,32,64,0.07);
+    --r-xl:        24px;
+    --r-lg:        18px;
+    --r-md:        12px;
+    --r-sm:        8px;
+    --r-full:      999px;
+    --fh:          'Syne', sans-serif;
+    --fb:          'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { height: 100%; overflow: hidden; }
+
+  body {
+    font-family: var(--fb);
+    background: linear-gradient(145deg, #A8D8F0 0%, #5AAFD4 45%, #2A7DB3 100%);
+    background-attachment: fixed;
+    color: var(--text-dark);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ==========================================================
+     CANVAS PARTICULES
+  ========================================================== */
+  #pc-canvas {
+    position: fixed; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ==========================================================
+     SYSTÈME D'ÉCRANS
+  ========================================================== */
+  .screen {
+    position: fixed; inset: 0;
+    overflow-y: auto; overflow-x: hidden;
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(22px);
+    pointer-events: none;
+    transition: opacity .38s ease, transform .38s cubic-bezier(.4,0,.2,1);
+  }
+  .screen.active  { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .screen.leaving { opacity: 0; transform: translateY(-18px); pointer-events: none; }
+
+  /* ==========================================================
+     ÉCRAN ACCUEIL
+  ========================================================== */
+  #s-home {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; padding: 24px;
+  }
+
+  .home-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1.5px solid var(--card-bdr);
+    border-radius: var(--r-xl);
+    box-shadow: var(--sh-xl);
+    padding: 52px 44px;
+    text-align: center;
+    max-width: 430px;
+    width: 100%;
+    animation: homeIn .85s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+
+  .home-phone {
+    font-size: 68px;
+    display: block;
+    margin-bottom: 22px;
+    animation: phoneWiggle 3s ease-in-out infinite;
+    transform-origin: center bottom;
+  }
+
+  .home-logo {
+    font-family: var(--fh);
+    font-size: 34px;
+    font-weight: 800;
+    color: var(--text-dark);
+    letter-spacing: -1px;
+    margin-bottom: 10px;
+  }
+  .home-logo span { color: var(--sky-deep); }
+
+  .home-tagline {
+    font-size: 14.5px;
+    color: var(--text-mid);
+    line-height: 1.65;
+    margin-bottom: 32px;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .home-chips {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    justify-content: center;
+    margin-bottom: 34px;
+  }
+
+  .home-chip {
+    background: linear-gradient(135deg, #E4F3FB, #D0ECF8);
+    border-radius: var(--r-full);
+    padding: 6px 13px;
+    font-size: 12px; font-weight: 600;
+    color: var(--sky-deeper);
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  /* ==========================================================
+     BOUTONS
+  ========================================================== */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    font-family: var(--fb); font-size: 15.5px; font-weight: 600;
+    padding: 13px 26px;
+    border-radius: var(--r-full); border: none;
+    cursor: pointer;
+    transition: all .22s ease;
+    text-decoration: none;
+    white-space: nowrap;
+    position: relative; overflow: hidden;
+    user-select: none;
+  }
+  .btn:active { transform: scale(.965) !important; }
+  .btn:disabled { opacity: .42; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+  .btn-sky {
+    background: linear-gradient(135deg, var(--sky-mid), var(--sky-deep));
+    color: var(--white);
+    box-shadow: 0 6px 22px rgba(46,127,181,.38);
+  }
+  .btn-sky:hover:not(:disabled) { box-shadow: 0 10px 32px rgba(46,127,181,.52); transform: translateY(-2px); }
+
+  .btn-accent {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: var(--white);
+    box-shadow: 0 6px 22px rgba(255,123,84,.38);
+  }
+  .btn-accent:hover:not(:disabled) { box-shadow: 0 10px 32px rgba(255,123,84,.52); transform: translateY(-2px); }
+
+  .btn-green {
+    background: linear-gradient(135deg, var(--success), var(--success-dk));
+    color: var(--white);
+    box-shadow: 0 6px 22px rgba(61,212,172,.38);
+  }
+  .btn-green:hover:not(:disabled) { box-shadow: 0 10px 32px rgba(61,212,172,.52); transform: translateY(-2px); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--sky-deep);
+    border: 1.5px solid rgba(46,127,181,.32);
+  }
+  .btn-ghost:hover:not(:disabled) { border-color: var(--sky-deep); background: rgba(46,127,181,.06); }
+
+  .btn-lg  { font-size: 17px; padding: 17px 40px; }
+  .btn-md  { font-size: 14px; padding: 10px 20px; }
+  .btn-sm  { font-size: 12px; padding: 7px 14px; }
+  .btn-w   { width: 100%; }
+
+  /* ==========================================================
+     WRAPPER ÉCRANS SECONDAIRES
+  ========================================================== */
+  .sw { min-height: 100vh; padding: 28px 16px 36px; max-width: 680px; margin: 0 auto; }
+
+  .sw-header {
+    display: flex; align-items: flex-start; gap: 12px;
+    margin-bottom: 26px;
+  }
+
+  .back-btn {
+    flex-shrink: 0;
+    width: 42px; height: 42px;
+    border-radius: var(--r-full);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-bdr);
+    backdrop-filter: blur(8px);
+    color: var(--white); font-size: 19px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s ease;
+    margin-top: 2px;
+  }
+  .back-btn:hover { background: rgba(255,255,255,.24); }
+
+  .sw-title {
+    font-family: var(--fh); font-size: 23px; font-weight: 700;
+    color: var(--white);
+    text-shadow: 0 2px 12px rgba(0,0,0,.1);
+  }
+  .sw-sub { font-size: 13.5px; color: rgba(255,255,255,.72); margin-top: 2px; }
+
+  .sticky-footer {
+    position: sticky; bottom: 0;
+    padding: 10px 0 4px;
+  }
+
+  /* ==========================================================
+     CARTES GÉNÉRIQUES
+  ========================================================== */
+  .card {
+    background: var(--card-bg);
+    backdrop-filter: blur(18px);
+    border: 1px solid var(--card-bdr);
+    border-radius: var(--r-lg);
+    box-shadow: var(--sh-md);
+    padding: 20px;
+  }
+
+  /* ==========================================================
+     ÉCRAN ACCROCHE
+  ========================================================== */
+  .accroche-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+
+  .ac-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border: 2px solid transparent;
+    border-radius: var(--r-md);
+    padding: 15px 16px 15px 14px;
+    cursor: pointer;
+    transition: all .22s ease;
+    position: relative;
+  }
+  .ac-card:hover {
+    border-color: rgba(46,127,181,.3);
+    background: var(--white);
+    transform: translateX(3px);
+  }
+  .ac-card.sel {
+    border-color: var(--sky-deep);
+    background: var(--white);
+    box-shadow: 0 4px 22px rgba(46,127,181,.18);
+  }
+  .ac-check {
+    position: absolute; top: 10px; right: 10px;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--sky-deep);
+    color: white; font-size: 12px; font-weight: 700;
+    display: none; align-items: center; justify-content: center;
+  }
+  .ac-card.sel .ac-check { display: flex; }
+
+  .ac-num {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .6px;
+    text-transform: uppercase; color: var(--sky-mid); margin-bottom: 5px;
+  }
+  .ac-text {
+    font-size: 13px; color: var(--text-mid); line-height: 1.55;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: all .2s ease;
+  }
+  .ac-card.sel .ac-text { -webkit-line-clamp: unset; overflow: visible; }
+
+  /* ==========================================================
+     ÉCRAN VILLE
+  ========================================================== */
+  .city-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+    gap: 12px; margin-bottom: 16px;
+  }
+
+  .city-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border: 2px solid transparent;
+    border-radius: var(--r-lg);
+    padding: 22px 16px 18px;
+    text-align: center; cursor: pointer;
+    transition: all .24s ease;
+    position: relative;
+  }
+  .city-card:hover {
+    border-color: rgba(46,127,181,.35);
+    background: var(--white);
+    transform: translateY(-3px);
+    box-shadow: var(--sh-md);
+  }
+  .city-card.sel {
+    border-color: var(--sky-deep);
+    background: var(--white);
+    box-shadow: 0 8px 28px rgba(46,127,181,.24);
+    transform: translateY(-3px);
+  }
+  .city-sel-dot {
+    position: absolute; top: 9px; right: 9px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--sky-deep); color: white;
+    font-size: 12px; font-weight: 700;
+    display: none; align-items: center; justify-content: center;
+  }
+  .city-card.sel .city-sel-dot { display: flex; }
+
+  .city-icon { font-size: 30px; margin-bottom: 9px; display: block; }
+  .city-name {
+    font-family: var(--fh); font-size: 14px; font-weight: 700;
+    color: var(--text-dark); margin-bottom: 4px;
+  }
+  .city-cnt {
+    font-size: 11.5px; color: var(--text-light);
+    display: flex; align-items: center; justify-content: center; gap: 3px;
+  }
+  .city-cnt strong { color: var(--sky-deep); font-weight: 700; }
+
+  .demo-banner {
+    background: linear-gradient(135deg, #FFF8E7, #FFF0CD);
+    border: 1px solid #FBCF4A;
+    border-radius: var(--r-md);
+    padding: 10px 14px; font-size: 13px; color: #92400E;
+    margin-bottom: 14px; display: none;
+    align-items: center; gap: 8px;
+  }
+
+  /* ==========================================================
+     ÉCRAN CHARGEMENT
+  ========================================================== */
+  #s-loading {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh;
+  }
+  .loading-card {
+    background: var(--card-bg); border-radius: var(--r-xl);
+    padding: 52px 44px; text-align: center; box-shadow: var(--sh-xl);
+  }
+  .spin {
+    width: 52px; height: 52px;
+    border: 3px solid rgba(46,127,181,.15);
+    border-top-color: var(--sky-deep);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    margin: 0 auto 22px;
+  }
+  .loading-t { font-family: var(--fh); font-size: 19px; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; }
+  .loading-s { font-size: 14px; color: var(--text-light); }
+
+  /* ==========================================================
+     ÉCRAN MISSION — TOPBAR
+  ========================================================== */
+  #s-mission { display: flex; flex-direction: column; min-height: 100vh; }
+
+  .m-topbar {
+    background: rgba(12,28,56,.28);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 13px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    border-bottom: 1px solid rgba(255,255,255,.14);
+  }
+  .m-topbar-l { display: flex; flex-direction: column; gap: 1px; }
+  .m-city { font-family: var(--fh); font-size: 15px; font-weight: 700; color: var(--white); }
+  .m-prog-txt { font-size: 12px; color: rgba(255,255,255,.68); }
+  .m-topbar-r { display: flex; flex-direction: column; align-items: flex-end; }
+  .m-pct { font-family: var(--fh); font-size: 22px; font-weight: 800; color: var(--white); line-height: 1; }
+  .m-pct-lbl { font-size: 10px; color: rgba(255,255,255,.56); text-transform: uppercase; letter-spacing: .5px; }
+
+  /* BARRE DE PROGRESSION LUMINEUSE */
+  .m-progressbar {
+    height: 7px;
+    background: rgba(255,255,255,.18);
+    width: 100%;
+    position: relative;
+    overflow: visible;
+  }
+  .m-progressbar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, rgba(255,255,255,.55) 0%, var(--white) 100%);
+    border-radius: 0 4px 4px 0;
+    transition: width .65s cubic-bezier(.34,1.56,.64,1);
+    position: relative;
+    min-width: 0;
+  }
+  .m-progressbar-fill::after {
+    content: '';
+    position: absolute; right: -1px; top: 50%;
+    transform: translateY(-50%);
+    width: 13px; height: 13px;
+    background: var(--white);
+    border-radius: 50%;
+    box-shadow: 0 0 12px rgba(255,255,255,.9), 0 0 24px rgba(255,255,255,.45);
+    animation: glowPulse 2s ease-in-out infinite;
+  }
+
+  /* MISSION CONTENT */
+  .m-content {
+    flex: 1;
+    max-width: 600px; width: 100%;
+    margin: 0 auto;
+    padding: 18px 16px 28px;
+    display: flex; flex-direction: column; gap: 14px;
+    overflow-y: auto;
+  }
+
+  /* ACCROCHE PILL DÉPLIABLE */
+  .ac-pill {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-bdr);
+    border-radius: var(--r-md);
+    padding: 11px 14px;
+    cursor: pointer;
+    transition: all .2s ease;
+    user-select: none;
+  }
+  .ac-pill-row {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ac-pill-label {
+    font-size: 10.5px; font-weight: 700; letter-spacing: .5px;
+    text-transform: uppercase; color: rgba(255,255,255,.65);
+    flex-shrink: 0;
+  }
+  .ac-pill-preview {
+    font-size: 13px; color: rgba(255,255,255,.88);
+    flex: 1; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap;
+  }
+  .ac-pill-arrow {
+    color: rgba(255,255,255,.5); font-size: 12px;
+    flex-shrink: 0;
+    transition: transform .22s ease;
+  }
+  .ac-pill.open .ac-pill-arrow { transform: rotate(180deg); }
+  .ac-pill.open .ac-pill-preview { display: none; }
+  .ac-pill-full {
+    font-size: 13px; color: rgba(255,255,255,.88); line-height: 1.6;
+    margin-top: 10px; display: none;
+    padding-top: 10px; border-top: 1px solid rgba(255,255,255,.14);
+  }
+  .ac-pill.open .ac-pill-full { display: block; }
+
+  /* CARTE PROSPECT */
+  .prospect-card {
+    background: var(--white);
+    border-radius: var(--r-xl);
+    box-shadow: var(--sh-xl);
+    overflow: hidden;
+    animation: slideInRight .34s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+
+  .pc-head {
+    background: linear-gradient(135deg, var(--sky-deeper) 0%, var(--sky-deep) 100%);
+    padding: 20px 22px 18px;
+  }
+  .pc-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(255,255,255,.18);
+    border-radius: var(--r-full);
+    padding: 4px 10px;
+    font-size: 11px; font-weight: 700; color: rgba(255,255,255,.88);
+    margin-bottom: 10px;
+  }
+  .pc-name {
+    font-family: var(--fh); font-size: 22px; font-weight: 800;
+    color: var(--white); line-height: 1.2; margin-bottom: 6px;
+  }
+  .pc-activity {
+    font-size: 13.5px; color: rgba(255,255,255,.78);
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .pc-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+
+  /* Bloc téléphone */
+  .pc-phone-block {
+    background: linear-gradient(135deg, #EFF6FF, #DBEAFf);
+    border-radius: var(--r-md);
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .pc-phone-inner { flex: 1; min-width: 0; }
+  .pc-phone-lbl {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .5px; color: var(--sky-deeper); margin-bottom: 3px;
+  }
+  .pc-phone-num {
+    font-family: var(--fh); font-size: 24px; font-weight: 800;
+    color: var(--text-dark); text-decoration: none; letter-spacing: .5px;
+    display: block;
+  }
+  .pc-phone-num:hover { color: var(--sky-deep); }
+  .call-btn {
+    flex-shrink: 0; width: 50px; height: 50px;
+    border-radius: 50%;
+    background: var(--sky-deep);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; text-decoration: none;
+    box-shadow: 0 4px 16px rgba(46,127,181,.42);
+    transition: all .22s ease;
+  }
+  .call-btn:hover { transform: scale(1.1); box-shadow: 0 6px 22px rgba(46,127,181,.58); }
+
+  /* Lignes d'info */
+  .pc-info-row { display: flex; align-items: flex-start; gap: 12px; }
+  .pc-info-ico {
+    width: 36px; height: 36px; border-radius: var(--r-sm);
+    background: #F0F6FC;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px; flex-shrink: 0;
+  }
+  .pc-info-lbl {
+    font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .4px; color: var(--text-light); margin-bottom: 2px;
+  }
+  .pc-info-val {
+    font-size: 14px; color: var(--text-dark); line-height: 1.4;
+    text-decoration: none;
+  }
+  a.pc-info-val:hover { color: var(--sky-deep); text-decoration: underline; }
+
+  /* ==========================================================
+     ZONE DE RÉSULTAT
+  ========================================================== */
+  .result-box {
+    background: var(--card-bg);
+    backdrop-filter: blur(18px);
+    border: 1px solid var(--card-bdr);
+    border-radius: var(--r-xl);
+    box-shadow: var(--sh-md);
+    padding: 18px;
+  }
+  .result-box-title {
+    font-family: var(--fh); font-size: 13.5px; font-weight: 700;
+    color: var(--text-dark); margin-bottom: 13px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px; margin-bottom: 13px;
+  }
+  @media (min-width: 500px) {
+    .result-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .r-chip {
+    display: flex; align-items: center; gap: 7px;
+    padding: 10px 11px;
+    border-radius: var(--r-md);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all .18s ease;
+    user-select: none;
+  }
+  .r-chip:hover { transform: translateY(-2px); box-shadow: var(--sh-sm); }
+  .r-chip.sel {
+    border-color: currentColor;
+    box-shadow: 0 4px 16px rgba(0,0,0,.1);
+    transform: translateY(-1px);
+  }
+  .r-chip-em { font-size: 17px; flex-shrink: 0; }
+  .r-chip-lbl { font-size: 12px; font-weight: 600; line-height: 1.2; }
+
+  .note-field {
+    width: 100%; padding: 11px 13px;
+    border: 1.5px solid rgba(46,127,181,.18);
+    border-radius: var(--r-md);
+    font-family: var(--fb); font-size: 14px; color: var(--text-dark);
+    background: var(--white);
+    resize: vertical; min-height: 76px;
+    transition: border-color .2s ease;
+    margin-bottom: 13px;
+  }
+  .note-field:focus { outline: none; border-color: var(--sky-deep); }
+  .note-field::placeholder { color: var(--text-light); }
+
+  .result-actions { display: flex; gap: 9px; }
+  .result-actions .btn-green { flex: 1; }
+
+  /* ==========================================================
+     ÉCRAN FIN DE SESSION
+  ========================================================== */
+  #s-end { overflow-y: auto; }
+
+  .end-hero {
+    background: linear-gradient(155deg, var(--sky-darkest) 0%, var(--sky-deeper) 60%, var(--sky-deep) 100%);
+    padding: 44px 24px 72px;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  .end-hero::before {
+    content: '';
+    position: absolute; bottom: -38px; left: 50%;
+    transform: translateX(-50%);
+    width: 140%; height: 78px;
+    background: #ECF4FB;
+    border-radius: 50%;
+  }
+  /* Étoiles déco dans le hero */
+  .end-hero::after {
+    content: '★ ✦ ★ ✦ ★';
+    position: absolute; top: 20px; left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px; color: rgba(255,255,255,.22);
+    letter-spacing: 14px; white-space: nowrap;
+  }
+
+  .end-trophy {
+    font-size: 64px; display: block; margin-bottom: 14px;
+    animation: trophyIn .9s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  .end-title {
+    font-family: var(--fh); font-size: 30px; font-weight: 800;
+    color: var(--white); margin-bottom: 6px;
+  }
+  .end-sub { font-size: 15px; color: rgba(255,255,255,.72); }
+
+  .end-body {
+    background: #ECF4FB;
+    padding: 52px 16px 32px;
+    max-width: 720px; margin: 0 auto;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+
+  /* Score */
+  .score-block {
+    background: var(--white); border-radius: var(--r-xl);
+    box-shadow: var(--sh-lg);
+    padding: 28px 26px;
+    display: flex; align-items: center; gap: 22px;
+  }
+  @media (max-width: 480px) {
+    .score-block { flex-direction: column; text-align: center; }
+    .score-tags { justify-content: center; }
+  }
+
+  .score-ring {
+    flex-shrink: 0;
+    width: 92px; height: 92px; border-radius: 50%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-family: var(--fh);
+  }
+  .score-grade { font-size: 38px; font-weight: 800; color: var(--white); line-height: 1; }
+  .score-pts { font-size: 11px; font-weight: 600; color: rgba(255,255,255,.82); margin-top: 1px; }
+
+  .score-info { flex: 1; }
+  .score-city { font-family: var(--fh); font-size: 22px; font-weight: 800; color: var(--text-dark); margin-bottom: 5px; }
+  .score-synopsis { font-size: 14px; color: var(--text-mid); line-height: 1.55; margin-bottom: 10px; }
+  .score-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .score-tag {
+    background: #E8F3FC; color: var(--sky-deep);
+    border-radius: var(--r-full); padding: 4px 10px;
+    font-size: 12px; font-weight: 600;
+  }
+
+  /* Grille de stats */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 11px;
+  }
+  @media (min-width: 560px) {
+    .stats-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .stat-card {
+    background: var(--white); border-radius: var(--r-lg);
+    box-shadow: var(--sh-sm); padding: 18px 18px 14px;
+    animation: revealUp .5s ease both;
+  }
+  .stat-lbl {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .4px; color: var(--text-light);
+    margin-bottom: 6px;
+  }
+  .stat-val {
+    font-family: var(--fh); font-size: 32px; font-weight: 800;
+    color: var(--text-dark); line-height: 1;
+  }
+  .stat-sub { font-size: 12px; color: var(--text-light); margin-top: 3px; }
+
+  /* Taux */
+  .rates-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 11px;
+  }
+  .rate-card {
+    background: var(--white); border-radius: var(--r-lg);
+    box-shadow: var(--sh-sm); padding: 14px; text-align: center;
+  }
+  .rate-val { font-family: var(--fh); font-size: 26px; font-weight: 800; margin-bottom: 2px; }
+  .rate-lbl { font-size: 11px; color: var(--text-light); text-transform: uppercase; letter-spacing: .3px; }
+
+  /* Section charts */
+  .chart-box {
+    background: var(--white); border-radius: var(--r-xl);
+    box-shadow: var(--sh-md); padding: 22px;
+  }
+  .chart-box-title {
+    font-family: var(--fh); font-size: 15px; font-weight: 700;
+    color: var(--text-dark); margin-bottom: 18px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .chart-wrap { position: relative; }
+
+  /* Breakdown */
+  .breakdown-list { display: flex; flex-direction: column; gap: 9px; }
+  .bk-item { display: flex; align-items: center; gap: 9px; }
+  .bk-em { font-size: 17px; width: 26px; text-align: center; flex-shrink: 0; }
+  .bk-lbl { font-size: 13px; color: var(--text-mid); flex: 1; min-width: 0; }
+  .bk-bar-wrap { width: 80px; height: 5px; background: #EDF2F7; border-radius: var(--r-full); overflow: hidden; flex-shrink: 0; }
+  .bk-bar { height: 100%; border-radius: var(--r-full); width: 0; transition: width 1s ease .4s; }
+  .bk-count { font-size: 13.5px; font-weight: 700; color: var(--text-dark); width: 26px; text-align: right; flex-shrink: 0; }
+  .bk-pct { font-size: 11.5px; color: var(--text-light); width: 36px; text-align: right; flex-shrink: 0; }
+
+  /* Export */
+  .export-box {
+    background: var(--white); border-radius: var(--r-xl);
+    box-shadow: var(--sh-md); padding: 22px;
+  }
+  .export-btns { display: flex; flex-wrap: wrap; gap: 10px; }
+  @media (max-width: 480px) {
+    .export-btns .btn { width: 100%; }
+  }
+
+  /* Section title */
+  .section-h {
+    font-family: var(--fh); font-size: 14px; font-weight: 700;
+    color: var(--text-dark); margin-bottom: 12px;
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  /* ==========================================================
+     TOAST
+  ========================================================== */
+  .toast {
+    position: fixed; bottom: 22px; left: 50%;
+    transform: translateX(-50%) translateY(90px);
+    background: var(--text-dark); color: var(--white);
+    padding: 11px 22px; border-radius: var(--r-full);
+    font-size: 14px; font-weight: 500;
+    z-index: 9999;
+    transition: transform .38s cubic-bezier(.34,1.56,.64,1);
+    white-space: nowrap; box-shadow: var(--sh-lg);
+    pointer-events: none; max-width: 90vw;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ==========================================================
+     ANIMATIONS
+  ========================================================== */
+  @keyframes homeIn {
+    from { opacity: 0; transform: translateY(30px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes phoneWiggle {
+    0%,100% { transform: rotate(-4deg); }
+    25%      { transform: rotate(6deg) translateY(-6px); }
+    50%      { transform: rotate(-3deg) translateY(-2px); }
+    75%      { transform: rotate(7deg) translateY(-9px); }
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(28px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes revealUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes trophyIn {
+    0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+    60%  { transform: scale(1.18) rotate(6deg); opacity: 1; }
+    80%  { transform: scale(.96) rotate(-2deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  @keyframes glowPulse {
+    0%,100% { box-shadow: 0 0 10px rgba(255,255,255,.7), 0 0 20px rgba(255,255,255,.3); }
+    50%      { box-shadow: 0 0 18px rgba(255,255,255,.95), 0 0 36px rgba(255,255,255,.5); }
+  }
+
+  /* ==========================================================
+     RESPONSIVE
+  ========================================================== */
+  @media (max-width: 440px) {
+    .home-card { padding: 36px 22px; }
+    .home-logo { font-size: 28px; }
+    .pc-name   { font-size: 18px; }
+    .pc-phone-num { font-size: 20px; }
+  }
+
+  @media (min-width: 640px) {
+    .m-content { padding: 22px 24px 36px; }
+  }
+
+  /* Scrollbar discrète */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(46,127,181,.25); border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- CANVAS PARTICULES -->
+<canvas id="pc-canvas"></canvas>
+
+<!-- ============================================================
+     ÉCRAN: ACCUEIL
+============================================================ -->
+<section id="s-home" class="screen active">
+  <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;">
+    <div class="home-card">
+      <span class="home-phone">📞</span>
+      <h1 class="home-logo">Prospect<span>Call</span></h1>
+      <p class="home-tagline">Pilotez vos sessions de prospection téléphonique, ville par ville. Mission, progression, analyse.</p>
+      <div class="home-chips">
+        <div class="home-chip">📍 Par ville</div>
+        <div class="home-chip">⚡ Mission focus</div>
+        <div class="home-chip">📊 Analyse en direct</div>
+      </div>
+      <button class="btn btn-sky btn-lg btn-w" onclick="goToAccroche()">
+        ✨ Démarrer une session
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     ÉCRAN: CHOIX DE L'ACCROCHE
+============================================================ -->
+<section id="s-accroche" class="screen">
+  <div class="sw">
+    <div class="sw-header">
+      <button class="back-btn" onclick="goTo('home')">←</button>
+      <div>
+        <div class="sw-title">Phrase d'accroche</div>
+        <div class="sw-sub">Sélectionnez votre ouverture pour cette session</div>
+      </div>
+    </div>
+    <div id="accroche-list" class="accroche-list"></div>
+    <div class="sticky-footer">
+      <button id="btn-accroche-next" class="btn btn-accent btn-lg btn-w" onclick="confirmAccroche()" disabled>
+        Choisir cette accroche →
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     ÉCRAN: CHOIX DE LA VILLE
+============================================================ -->
+<section id="s-city" class="screen">
+  <div class="sw">
+    <div class="sw-header">
+      <button class="back-btn" onclick="goTo('accroche')">←</button>
+      <div>
+        <div class="sw-title">Choisir une ville</div>
+        <div class="sw-sub">Votre terrain de mission du jour</div>
+      </div>
+    </div>
+    <div id="demo-banner" class="demo-banner">
+      🎯 <strong>Mode démo</strong> — villes.json introuvable, données d'exemple chargées
+    </div>
+    <div id="city-grid" class="city-grid"></div>
+    <div class="sticky-footer">
+      <button id="btn-city-launch" class="btn btn-accent btn-lg btn-w" onclick="launchMission()" disabled>
+        🚀 Lancer la mission
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     ÉCRAN: CHARGEMENT
+============================================================ -->
+<section id="s-loading" class="screen">
+  <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;">
+    <div class="loading-card">
+      <div class="spin"></div>
+      <div class="loading-t" id="load-title">Chargement de la mission…</div>
+      <div class="loading-s" id="load-sub">Lecture des prospects en cours</div>
+      <div id="load-error-btns" style="display:none;margin-top:20px;display:flex;gap:10px;flex-direction:column;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     ÉCRAN: MISSION
+============================================================ -->
+<section id="s-mission" class="screen">
+
+  <!-- Barre supérieure collante -->
+  <div class="m-topbar">
+    <div class="m-topbar-l">
+      <div class="m-city"  id="m-city">—</div>
+      <div class="m-prog-txt" id="m-progtxt">Prospect 0 / 0</div>
+    </div>
+    <div class="m-topbar-r">
+      <div class="m-pct" id="m-pct">0%</div>
+      <div class="m-pct-lbl">accompli</div>
+    </div>
+  </div>
+
+  <!-- Barre de progression lumineuse -->
+  <div class="m-progressbar">
+    <div class="m-progressbar-fill" id="m-bar" style="width:0%"></div>
+  </div>
+
+  <!-- Contenu principal -->
+  <div class="m-content">
+
+    <!-- Accroche dépliable -->
+    <div class="ac-pill" id="ac-pill" onclick="toggleAcPill()">
+      <div class="ac-pill-row">
+        <span class="ac-pill-label">💬 Accroche</span>
+        <span class="ac-pill-preview" id="ac-preview">—</span>
+        <span class="ac-pill-arrow">▼</span>
+      </div>
+      <div class="ac-pill-full" id="ac-full"></div>
+    </div>
+
+    <!-- Carte prospect -->
+    <div class="prospect-card" id="prospect-card">
+      <div class="pc-head">
+        <div class="pc-badge">📋 Prospect <span id="pc-num">1</span>/<span id="pc-total">—</span></div>
+        <div class="pc-name" id="pc-name">—</div>
+        <div class="pc-activity">🏪 <span id="pc-act">—</span></div>
+      </div>
+      <div class="pc-body">
+        <!-- Téléphone -->
+        <div class="pc-phone-block">
+          <div class="pc-phone-inner">
+            <div class="pc-phone-lbl">📞 Téléphone</div>
+            <a class="pc-phone-num" id="pc-phone" href="#">—</a>
+          </div>
+          <a class="call-btn" id="pc-callbtn" href="#" title="Appeler">📲</a>
+        </div>
+        <!-- Adresse -->
+        <div class="pc-info-row">
+          <div class="pc-info-ico">📍</div>
+          <div>
+            <div class="pc-info-lbl">Adresse</div>
+            <a class="pc-info-val" id="pc-addr" href="#" target="_blank" rel="noopener">—</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone résultat -->
+    <div class="result-box">
+      <div class="result-box-title">📋 Résultat de l'appel</div>
+      <div class="result-grid" id="result-grid"></div>
+      <textarea class="note-field" id="call-note" placeholder="Note libre (objection, info utile, remarque…)"></textarea>
+      <div class="result-actions">
+        <button class="btn btn-ghost btn-md" onclick="skipProspect()" title="Passer ce prospect">⏭ Passer</button>
+        <button class="btn btn-green" id="btn-validate" onclick="validateCall()" disabled>✓ Valider et continuer</button>
+      </div>
+    </div>
+
+  </div><!-- /.m-content -->
+</section>
+
+<!-- ============================================================
+     ÉCRAN: FIN DE SESSION
+============================================================ -->
+<section id="s-end" class="screen">
+  <div class="end-hero">
+    <span class="end-trophy">🏆</span>
+    <h1 class="end-title">Mission accomplie !</h1>
+    <p class="end-sub" id="end-sub">Session terminée</p>
+  </div>
+  <div class="end-body" id="end-body">
+    <!-- Rendu dynamique par JS -->
+  </div>
+</section>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+
+<script>
+/* ==========================================================
+   ⚙️  CONFIG — MODIFIER FACILEMENT ICI
+========================================================== */
+const CONFIG = {
+
+  /* ---- Phrases d'accroche ---- */
+  accroches: [
+    "Bonjour c'est Léo l'inspecteur au bureau des fraudes , j'ai vue votre nom apparaitre sur mon bureau ce matin et honnêtement la situation est un peu délicate monsieur, j'avais une question pour vous qui va permettre d'éclairecire tout ça, vous ne trouvez pas ça criminel qu'une entreprise comme la votre qui fait un si bon travail n'est pas de site web en 2026 ?",
+    "Bonjour si je vous dis que c'est un appel de prospection est-ce que vous me laisser 10 seconde pour expliquer ou vous jettez votre téléphone par la fenêtre ?",
+    "Bonjours je me posais une question sur votre entreprise , comment une entreprise comme la votre dans la france à Macron peut survivre sans site web ?",
+    "Bonjours si je vous dis que c'est un appel de prospection je tache complètement votre journée ou vous me laisser 10 seconde pour vous expliquer.",
+    "Bon je vais pas passez par 4 chemin, je veux le patron. Vous êtes le patron ? Ok vos Goyer j'aimerai bien mettre ma mains dans votre poche et vous prendre de l'argent sauf que ça fonctionne pas comme ça faut que je t'apporte de la valeur donc je me suis permit de vous crée un site web et si vous avez 5 minutes pour le voir dans la journée on peut s'appeler ?",
+    "Bonjour je voudrais une margaritta, vous faite la livraison d'ailleurs ou pas ? Je sais bien je vous fait marcher, si je vous dis que c'est un appel de prospection est-ce que vous me laisser 10 seconde ou vous mettez le téléphone par la fenêtre ?",
+    "Bonjour, si je vous dis le mot 'Prospection', vous bloquez mon numéro pour les trois prochaines générations ou vous me laissez 10 secondes pour vous prouver que je suis la seule personne de la journée qui va vraiment vous faire gagner du temps ?",
+    "Bonjour, c'est bien la SPA ? Non ? Ah mince... Bon, eh bien puisque je vous ai au bout du fil, si je vous dis que je fais de la prospection pour la création de sites web, vous me raccrochez au nez par réflexe ou vous me donnez 10 secondes par pure pitié ?",
+    "Bonjour, je fais un sondage ultra-rapide : sur une échelle de 1 à 10, à quel point avez-vous envie d'étrangler les gens qui font de la prospection téléphonique ? [...] Parfait ! Alors comme c'en est un, je vous demande juste 10 secondes de tolérance avant de me maudire, c'est jouable ?",
+    "Bonjour, j'ai un aveu à vous faire... c'est de la prospection pure et dure. Je sais que vous détestez ça autant que moi, alors on fait un deal : vous me laissez 10 secondes chrono pour vous convaincre. Si c'est nul, vous gagnez le droit de m'insulter copieusement avant de raccrocher. Ça vous va ?",
+    "Bonjour, je vous appelle pour vous prévenir que votre voiture est mal garée... Non je plaisante, je n'en ai aucune idée. Par contre, ce qui est sûr, c'est que c'est un appel de prospection. Vous avez 10 secondes à m'accorder pour l'audace de la blague, ou je passe à ma prochaine victime ?",
+    "Bonjour, j'aimerais pousser un énorme coup de gueule... Non, je plaisante, détendez-vous, je ne suis pas un client fâché. Pire : je suis un commercial qui fait de la prospection. Est-ce que ce petit ascenseur émotionnel me donne le droit à 10 secondes de votre temps, ou je peux raccrocher ?",
+    "Bonjour c'est pour les panneau solaire; Je plaisante, rassurez-vous tout de suite. Par contre, ça reste un appel de prospection. Vous me laissez 10 secondes pour me faire pardonner cette frayeur ou vous m'envoyez balader ?",
+    "Bonjour, c'est l'URSSAF... Respirez, respirez, détendez-vous, c'est une blague ! Je sais, elle est cruelle. En vrai, c'est \"juste\" un commercial qui fait de la prospection pour des sites web. Avec l'arrêt cardiaque que je viens de vous éviter, vous me laissez 10 secondes pour me rattraper ou vous portez plainte ?",
+    "Bonjour, je suis censé vous livrer une palette entière de nouveaux clients, mais le problème c'est que je ne trouve pas la porte de votre site web pour vous les déposer ! Allez je vous charrie, c'est un appel commercial. Vous m'accordez 10 secondes chrono pour vous dire comment on fait, ou je repars avec ma palette ?",
+    "Bonjour. (Voix grave et lente) Vous allez me laisser 10 secondes de votre temps pour que je vous vende un site web... Bon, visiblement mes pouvoirs de Jedi ne marchent pas au téléphone. C'est de la prospection classique. Est-ce que je peux quand même avoir mes 10 secondes, ou la Force n'est vraiment pas avec moi aujourd'hui ?",
+    "Bonjour, haut les mains, ceci est un hold-up de votre temps ! Je vous rassure, je ne veux que 10 secondes de votre montre pour un appel de prospection pure et dure sur votre présence digitale. Si ce que je dis est nul au bout des 10 secondes, vous raccrochez et vous retournez à votre journée. On a un deal ou j'ai raté mon braquage ?",
+    "Accent africain : bonjours monsieur j'ai chercher a vous joindre par rapport a votre banque ? NON NON je rigole, si je vous dis que c'est un appel de prospection est-ce que vous me laisser 10 seconde pour expliquer ou vous jettez votre téléphone par la fenêtre ?",
+    "Musique skyrock : Bonjour pour tenter de gagner un cadeaux de 1000 euros, quel est votre radio préféré ? Non c'est la mauvaise réponse, si je vous dis que c'est un appel de prospection est-ce que vous me laisser 10 seconde pour expliquer ou vous jettez votre téléphone par la fenêtre ?"
+  ],
+
+  /* ---- Résultats d'appel ---- */
+  results: [
+    { id:'no_answer',      label:'Pas de réponse',  emoji:'📵', color:'#94A3B8', bg:'#F1F5F9' },
+    { id:'interested',     label:'Intéressé',        emoji:'🎉', color:'#10B981', bg:'#ECFDF5' },
+    { id:'not_interested', label:'Pas intéressé',    emoji:'👋', color:'#EF4444', bg:'#FEF2F2' },
+    { id:'callback',       label:'Rappel demandé',   emoji:'📅', color:'#3B82F6', bg:'#EFF6FF' },
+    { id:'wrong_number',   label:'Mauvais numéro',   emoji:'🔢', color:'#F59E0B', bg:'#FFFBEB' },
+    { id:'has_website',    label:'Déjà un site',     emoji:'💻', color:'#8B5CF6', bg:'#F5F3FF' },
+    { id:'barrier',        label:'Barrage',          emoji:'🚧', color:'#F97316', bg:'#FFF7ED' },
+    { id:'other',          label:'Autre',            emoji:'❓', color:'#6B7280', bg:'#F9FAFB' },
+  ],
+
+  /* ---- Icônes villes (rotation) ---- */
+  cityIcons: ['🏙️','🌆','🌇','🏘️','🌃','🌉','🏛️','⛪','🏡','🗺️'],
+};
+
+/* ==========================================================
+   🗃️  ÉTAT GLOBAL
+========================================================== */
+const S = {
+  screen:          'home',
+  accrocheIdx:     null,      // index de l'accroche choisie
+  city:            null,      // objet ville sélectionné
+  cities:          [],        // liste chargée depuis villes.json
+  prospects:       [],        // tableau CSV parsé
+  prospectIdx:     0,         // index courant
+  results:         [],        // { ...data, resultId, resultLabel, note, ts }
+  sessionStart:    null,
+  currentResult:   null,      // id résultat sélectionné
+  isDemoMode:      false,
+  charts:          {},        // instances Chart.js
+};
+
+/* ==========================================================
+   🧭  ROUTEUR
+========================================================== */
+function goTo(name) {
+  const cur  = document.querySelector('.screen.active');
+  const next = document.getElementById('s-' + name);
+  if (!next || cur === next) return;
+
+  if (cur) {
+    cur.classList.add('leaving');
+    cur.classList.remove('active');
+    setTimeout(() => cur.classList.remove('leaving'), 400);
+  }
+  next.classList.add('active');
+  next.scrollTop = 0;
+  S.screen = name;
+}
+
+/* ==========================================================
+   🎨  PARTICULES
+========================================================== */
+(function() {
+  const cvs = document.getElementById('pc-canvas');
+  const ctx = cvs.getContext('2d');
+  let pts = [];
+
+  function resize() {
+    cvs.width  = window.innerWidth;
+    cvs.height = window.innerHeight;
+  }
+
+  function init() {
+    const n = Math.min(Math.floor(cvs.width * cvs.height / 13000), 100);
+    pts = Array.from({ length: n }, () => ({
+      x:  Math.random() * cvs.width,
+      y:  Math.random() * cvs.height,
+      r:  Math.random() * 2.4 + 0.4,
+      dx: (Math.random() - .5) * .22,
+      dy: (Math.random() - .5) * .22,
+      o:  Math.random() * .48 + .12,
+      p:  Math.random() * Math.PI * 2,
+      ps: Math.random() * .018 + .004,
+    }));
+  }
+
+  function frame() {
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    for (const p of pts) {
+      p.x += p.dx; p.y += p.dy; p.p += p.ps;
+      if (p.x < -4) p.x = cvs.width  + 4;
+      if (p.x > cvs.width  + 4) p.x = -4;
+      if (p.y < -4) p.y = cvs.height + 4;
+      if (p.y > cvs.height + 4) p.y = -4;
+      const op = Math.max(0, Math.min(.9, p.o + Math.sin(p.p) * .12));
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${op})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  resize(); init(); frame();
+  window.addEventListener('resize', () => { resize(); init(); });
+})();
+
+/* ==========================================================
+   📄  PARSER CSV ROBUSTE (guillemets, accents, BOM)
+========================================================== */
+function parseCSV(text) {
+  // Normalise les fins de ligne et retire le BOM UTF-8
+  const raw = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const lines = raw.split('\n');
+  if (lines.length < 2) return [];
+
+  function parseLine(line) {
+    const out = []; let cur = ''; let q = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') {
+        if (q && line[i+1] === '"') { cur += '"'; i++; }
+        else q = !q;
+      } else if (c === ',' && !q) {
+        out.push(cur.trim()); cur = '';
+      } else {
+        cur += c;
+      }
+    }
+    out.push(cur.trim());
+    return out;
+  }
+
+  const header = parseLine(lines[0]);
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const l = lines[i].trim();
+    if (!l) continue;
+    const vals = parseLine(l);
+    const row = {};
+    header.forEach((h, j) => { row[h.trim()] = (vals[j] || '').trim(); });
+    rows.push(row);
+  }
+  return rows;
+}
+
+/* ==========================================================
+   🌍  DONNÉES DE DÉMONSTRATION (fallback si JSON absent)
+========================================================== */
+const DEMO_CITIES = [
+  { id:'demo_a', name:'Paris (démo)',  file:null, potentialClients:5 },
+  { id:'demo_b', name:'Lyon (démo)',   file:null, potentialClients:6 },
+  { id:'demo_c', name:'Marseille (démo)', file:null, potentialClients:4 },
+];
+
+const DEMO_PROSPECTS = [
+  { 'Nom':'Boulangerie du Soleil',   'Activité':'Boulangerie · Pâtisserie',  'Adresse':'12 rue de la Paix, 75001 Paris',          'Téléphone':'01 23 45 67 89' },
+  { 'Nom':'Garage Dupont & Fils',    'Activité':'Garage automobile',          'Adresse':'5 avenue de la Gare, 75002 Paris',         'Téléphone':'01 98 76 54 32' },
+  { 'Nom':'Coiffure Élégance',       'Activité':'Salon de coiffure',          'Adresse':'8 boulevard Haussmann, 75009 Paris',       'Téléphone':'01 44 55 66 77' },
+  { 'Nom':'Plomberie Martin',        'Activité':'Plombier · Chauffagiste',    'Adresse':'22 rue des Artisans, 75011 Paris',         'Téléphone':'06 12 34 56 78' },
+  { 'Nom':'Restaurant Le Provençal', 'Activité':'Restaurant traditionnel',    'Adresse':'3 place du Marché, 75005 Paris',           'Téléphone':'01 56 78 90 12' },
+  { 'Nom':'Fleuriste Cœur de Rose',  'Activité':'Fleuriste',                  'Adresse':'47 rue Championnet, 75018 Paris',          'Téléphone':'01 42 18 36 90' },
+];
+
+/* ==========================================================
+   🌆  CHARGEMENT DES VILLES
+========================================================== */
+async function loadCities() {
+  try {
+    const res = await fetch('./villes.json');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) throw new Error('Fichier vide');
+    S.cities = data;
+    S.isDemoMode = false;
+  } catch (e) {
+    console.warn('[ProspectCall] villes.json introuvable — mode démo activé.', e.message);
+    S.cities = DEMO_CITIES;
+    S.isDemoMode = true;
+  }
+}
+
+async function loadProspects(city) {
+  if (S.isDemoMode || !city.file) return DEMO_PROSPECTS.slice();
+  const res = await fetch(city.file);
+  if (!res.ok) throw new Error(`CSV introuvable (${res.status}) : ${city.file}`);
+  const text = await res.text();
+  const rows = parseCSV(text);
+  if (!rows.length) throw new Error('Le fichier CSV est vide ou mal formaté.');
+  return rows;
+}
+
+/* ==========================================================
+   🏠  ACCUEIL → ACCROCHE
+========================================================== */
+function goToAccroche() {
+  renderAccroches();
+  goTo('accroche');
+}
+
+/* ==========================================================
+   💬  ÉCRAN ACCROCHE
+========================================================== */
+function renderAccroches() {
+  const el = document.getElementById('accroche-list');
+  el.innerHTML = CONFIG.accroches.map((txt, i) => `
+    <div class="ac-card ${S.accrocheIdx === i ? 'sel' : ''}" onclick="pickAccroche(${i})">
+      <div class="ac-check">✓</div>
+      <div class="ac-num">Accroche n°${i+1}</div>
+      <div class="ac-text">${esc(txt)}</div>
+    </div>
+  `).join('');
+  document.getElementById('btn-accroche-next').disabled = S.accrocheIdx === null;
+}
+
+function pickAccroche(i) {
+  S.accrocheIdx = (S.accrocheIdx === i) ? null : i;
+  renderAccroches();
+}
+
+async function confirmAccroche() {
+  if (S.accrocheIdx === null) return;
+  await renderCityScreen();
+  goTo('city');
+}
+
+/* ==========================================================
+   🏙️  ÉCRAN VILLE
+========================================================== */
+async function renderCityScreen() {
+  const grid = document.getElementById('city-grid');
+  grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:30px 0;">
+    <div class="spin" style="margin:0 auto;width:38px;height:38px;"></div>
+  </div>`;
+
+  await loadCities();
+
+  document.getElementById('demo-banner').style.display = S.isDemoMode ? 'flex' : 'none';
+
+  grid.innerHTML = S.cities.map((c, i) => `
+    <div class="city-card ${S.city && S.city.id === c.id ? 'sel' : ''}" onclick="pickCity(${i})" id="cc-${i}">
+      <div class="city-sel-dot">✓</div>
+      <span class="city-icon">${CONFIG.cityIcons[i % CONFIG.cityIcons.length]}</span>
+      <div class="city-name">${esc(c.name)}</div>
+      <div class="city-cnt"><strong>${c.potentialClients}</strong>&nbsp;prospects</div>
+    </div>
+  `).join('');
+
+  updateCityBtn();
+}
+
+function pickCity(i) {
+  S.city = S.cities[i];
+  document.querySelectorAll('.city-card').forEach(c => c.classList.remove('sel'));
+  document.getElementById('cc-' + i)?.classList.add('sel');
+  updateCityBtn();
+}
+
+function updateCityBtn() {
+  const btn = document.getElementById('btn-city-launch');
+  btn.disabled = !S.city;
+  btn.textContent = S.city
+    ? `🚀 Lancer la mission sur ${S.city.name}`
+    : '🚀 Lancer la mission';
+}
+
+/* ==========================================================
+   🚀  LANCEMENT DE LA MISSION
+========================================================== */
+async function launchMission() {
+  if (!S.city) return;
+  goTo('loading');
+  document.getElementById('load-title').textContent = `Chargement de ${S.city.name}…`;
+  document.getElementById('load-sub').textContent   = 'Lecture des prospects en cours';
+  document.getElementById('load-error-btns').style.display = 'none';
+
+  try {
+    S.prospects   = await loadProspects(S.city);
+    S.prospectIdx = 0;
+    S.results     = [];
+    S.sessionStart = new Date().toISOString();
+    S.currentResult = null;
+
+    setupMission();
+    goTo('mission');
+  } catch (e) {
+    document.getElementById('load-title').textContent = '❌ Erreur de chargement';
+    document.getElementById('load-sub').textContent   = e.message;
+    const btns = document.getElementById('load-error-btns');
+    btns.style.display = 'flex';
+    btns.innerHTML = `<button class="btn btn-ghost" onclick="goTo('city')">← Changer de ville</button>`;
+  }
+}
+
+/* ==========================================================
+   🎯  SETUP MISSION
+========================================================== */
+function setupMission() {
+  // Accroche
+  const txt = CONFIG.accroches[S.accrocheIdx] || '';
+  document.getElementById('ac-preview').textContent = txt.substring(0, 58) + (txt.length > 58 ? '…' : '');
+  document.getElementById('ac-full').textContent    = txt;
+  document.getElementById('ac-pill').classList.remove('open');
+
+  // Chips résultats
+  const grid = document.getElementById('result-grid');
+  grid.innerHTML = CONFIG.results.map(r => `
+    <div class="r-chip" id="chip-${r.id}"
+         style="color:${r.color};background:${r.bg};"
+         onclick="selectResult('${r.id}')">
+      <span class="r-chip-em">${r.emoji}</span>
+      <span class="r-chip-lbl">${r.label}</span>
+    </div>
+  `).join('');
+
+  renderProspect(0);
+}
+
+/* ==========================================================
+   👤  AFFICHER UN PROSPECT
+========================================================== */
+function renderProspect(idx) {
+  const p     = S.prospects[idx];
+  const total = S.prospects.length;
+  if (!p) return;
+
+  // Réinitialiser les chips
+  document.querySelectorAll('.r-chip').forEach(c => {
+    c.classList.remove('sel');
+    c.style.border = '2px solid transparent';
+    c.style.boxShadow = '';
+  });
+  S.currentResult = null;
+  document.getElementById('call-note').value = '';
+  document.getElementById('btn-validate').disabled = true;
+
+  // Topbar
+  const done = S.results.length;
+  const pct  = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('m-city').textContent    = S.city.name;
+  document.getElementById('m-progtxt').textContent = `Prospect ${idx + 1} / ${total}`;
+  document.getElementById('m-pct').textContent     = pct + '%';
+  document.getElementById('m-bar').style.width     = pct + '%';
+
+  // Badge
+  document.getElementById('pc-num').textContent   = idx + 1;
+  document.getElementById('pc-total').textContent = total;
+
+  // Données
+  const name    = get(p, ['Nom','nom','NAME']);
+  const act     = get(p, ['Activité','activite','activité','Activite','ACTIVITE']);
+  const phone   = get(p, ['Téléphone','telephone','téléphone','Tel','tel','TELEPHONE']);
+  const address = get(p, ['Adresse','adresse','ADRESSE']);
+
+  document.getElementById('pc-name').textContent = name || 'Prospect inconnu';
+  document.getElementById('pc-act').textContent  = act  || '—';
+
+  const cleanPhone = (phone || '').replace(/\s/g, '');
+  const phoneEl    = document.getElementById('pc-phone');
+  const callBtnEl  = document.getElementById('pc-callbtn');
+  phoneEl.textContent = phone || '—';
+  phoneEl.href  = cleanPhone ? 'tel:' + cleanPhone : '#';
+  callBtnEl.href = cleanPhone ? 'tel:' + cleanPhone : '#';
+
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address || '')}`;
+  const addrEl  = document.getElementById('pc-addr');
+  addrEl.textContent = address || '—';
+  addrEl.href        = address ? mapsUrl : '#';
+
+  // Animation carte
+  const card = document.getElementById('prospect-card');
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = 'slideInRight .34s cubic-bezier(.34,1.56,.64,1) forwards';
+}
+
+// Helper : cherche la première clé trouvée dans un objet
+function get(obj, keys) {
+  for (const k of keys) if (obj[k] !== undefined && obj[k] !== '') return obj[k];
+  return '';
+}
+
+function toggleAcPill() {
+  document.getElementById('ac-pill').classList.toggle('open');
+}
+
+/* ==========================================================
+   ✅  SÉLECTION DU RÉSULTAT
+========================================================== */
+function selectResult(id) {
+  S.currentResult = id;
+  document.querySelectorAll('.r-chip').forEach(c => {
+    c.classList.remove('sel');
+    c.style.border     = '2px solid transparent';
+    c.style.boxShadow  = '';
+  });
+  const cfg  = CONFIG.results.find(r => r.id === id);
+  const chip = document.getElementById('chip-' + id);
+  if (chip && cfg) {
+    chip.classList.add('sel');
+    chip.style.border    = `2px solid ${cfg.color}`;
+    chip.style.boxShadow = `0 4px 16px ${cfg.color}44`;
+  }
+  document.getElementById('btn-validate').disabled = false;
+}
+
+/* ==========================================================
+   ✓  VALIDER L'APPEL
+========================================================== */
+function validateCall() {
+  if (!S.currentResult) return;
+  const p   = S.prospects[S.prospectIdx];
+  const cfg = CONFIG.results.find(r => r.id === S.currentResult);
+
+  S.results.push({
+    idx:         S.prospectIdx,
+    prospectData: { ...p },
+    resultId:    S.currentResult,
+    resultLabel: cfg ? cfg.label : S.currentResult,
+    note:        document.getElementById('call-note').value.trim(),
+    ts:          new Date().toISOString(),
+  });
+
+  showToast(`${cfg ? cfg.emoji : '✓'} ${cfg ? cfg.label : 'Enregistré'} — Prospect ${S.prospectIdx + 1}`);
+  advanceProspect();
+}
+
+function skipProspect() {
+  const p = S.prospects[S.prospectIdx];
+  S.results.push({
+    idx:          S.prospectIdx,
+    prospectData: { ...p },
+    resultId:     'skipped',
+    resultLabel:  'Passé',
+    note:         '',
+    ts:           new Date().toISOString(),
+  });
+  advanceProspect();
+}
+
+function advanceProspect() {
+  const next = S.prospectIdx + 1;
+  if (next >= S.prospects.length) {
+    // Mise à jour progress bar à 100%
+    document.getElementById('m-bar').style.width = '100%';
+    document.getElementById('m-pct').textContent  = '100%';
+    setTimeout(() => { buildEndScreen(); goTo('end'); }, 500);
+  } else {
+    S.prospectIdx = next;
+    renderProspect(next);
+  }
+}
+
+/* ==========================================================
+   📊  CALCUL STATISTIQUES
+========================================================== */
+function calcStats() {
+  const r     = S.results;
+  const total = S.prospects.length;
+  const called = r.length;
+
+  const counts = {};
+  CONFIG.results.forEach(x => counts[x.id] = 0);
+  counts.skipped = 0;
+  r.forEach(x => { if (counts[x.resultId] !== undefined) counts[x.resultId]++; });
+
+  const answered = called
+    - (counts.no_answer   || 0)
+    - (counts.wrong_number|| 0)
+    - (counts.skipped     || 0);
+
+  const pct = (n) => called > 0 ? Math.round((n / called) * 100) : 0;
+
+  return {
+    total, called, counts,
+    answered,
+    responseRate:  pct(answered),
+    interestRate:  pct(counts.interested  || 0),
+    refusalRate:   pct(counts.not_interested || 0),
+    callbackRate:  pct(counts.callback    || 0),
+    barrierRate:   pct(counts.barrier     || 0),
+    noAnswerRate:  pct(counts.no_answer   || 0),
+    hasSiteRate:   pct(counts.has_website || 0),
+  };
+}
+
+/* ==========================================================
+   🏆  NOTE DE LA VILLE (formule pondérée)
+========================================================== */
+function calcScore(stats) {
+  const { called, counts } = stats;
+  if (!called) return { score: 0, grade: 'E', color: '#EF4444' };
+
+  const raw = (
+    (counts.interested     || 0) * 3.0   +
+    (counts.callback       || 0) * 2.0   +
+    (counts.not_interested || 0) * 0.0   +
+    (counts.has_website    || 0) * 0.0   +
+    (counts.other          || 0) * 0.5   +
+    (counts.barrier        || 0) * (-0.6)+
+    (counts.no_answer      || 0) * 0.15
+  );
+  const max   = called * 3;
+  const score = Math.max(0, Math.min(100, Math.round((raw / max) * 100)));
+
+  let grade, color;
+  if      (score >= 70) { grade = 'A'; color = '#10B981'; }
+  else if (score >= 50) { grade = 'B'; color = '#3B82F6'; }
+  else if (score >= 30) { grade = 'C'; color = '#F59E0B'; }
+  else if (score >= 15) { grade = 'D'; color = '#F97316'; }
+  else                  { grade = 'E'; color = '#EF4444'; }
+
+  return { score, grade, color };
+}
+
+/* ==========================================================
+   💬  SYNTHÈSE AUTOMATIQUE
+========================================================== */
+function makeSummary(stats, score) {
+  const tags   = [];
+  let synopsis = '';
+
+  if (stats.called === 0) return { synopsis: 'Aucun appel effectué.', tags: [] };
+
+  if      (score.grade === 'A') synopsis = '🔥 Ville très réceptive ! Excellent retour sur cette session.';
+  else if (score.grade === 'B') synopsis = '👍 Bon potentiel commercial. La ville répond bien.';
+  else if (score.grade === 'C') synopsis = '⚡ Potentiel modéré. Des pistes intéressantes à approfondir.';
+  else if (score.grade === 'D') synopsis = '🤔 Session difficile. Adapter l\'approche ou changer de créneau.';
+  else                          synopsis = '😤 Session très difficile. Peu de retours positifs cette fois.';
+
+  if (stats.interestRate  >= 25) tags.push('Taux d\'intérêt élevé 🎯');
+  if (stats.callbackRate  >= 15) tags.push('Beaucoup de rappels 📅');
+  if (stats.barrierRate   >= 25) tags.push('Nombreux barrages 🚧');
+  if (stats.noAnswerRate  >= 45) tags.push('Majorité sans réponse 📵');
+  if (stats.hasSiteRate   >= 20) tags.push('Concurrence digitale 💻');
+  if (stats.responseRate  >= 60) tags.push('Bonne joignabilité ✅');
+  const hot = stats.counts.interested || 0;
+  if (hot >= 3) tags.push(`${hot} contacts chauds 🔥`);
+
+  return { synopsis, tags };
+}
+
+/* ==========================================================
+   🏁  ÉCRAN FIN DE SESSION
+========================================================== */
+function buildEndScreen() {
+  const stats = calcStats();
+  const score = calcScore(stats);
+  const summ  = makeSummary(stats, score);
+  const city  = S.city?.name || '—';
+  const dur   = S.sessionStart
+    ? Math.round((Date.now() - new Date(S.sessionStart).getTime()) / 60000)
+    : 0;
+
+  document.getElementById('end-sub').textContent =
+    `${city} · ${stats.called} appels · ${dur} min`;
+
+  const body = document.getElementById('end-body');
+
+  body.innerHTML = `
+    <!-- Score de la ville -->
+    <div class="score-block" style="animation-delay:.08s">
+      <div class="score-ring"
+           style="background:${score.color};box-shadow:0 8px 28px ${score.color}60;">
+        <span class="score-grade">${score.grade}</span>
+        <span class="score-pts">${score.score}/100</span>
+      </div>
+      <div class="score-info">
+        <div class="score-city">${esc(city)}</div>
+        <div class="score-synopsis">${summ.synopsis}</div>
+        <div class="score-tags">
+          ${summ.tags.map(t => `<span class="score-tag">${t}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistiques clés -->
+    <div>
+      <div class="section-h">📈 Statistiques clés</div>
+      <div class="stats-grid">
+        ${statCard('📋','Total prospects', stats.total, 'dans la ville', .12)}
+        ${statCard('📞','Appels traités',  stats.called, `${Math.round(stats.called/Math.max(stats.total,1)*100)}% du fichier`, .17)}
+        ${statCard('🎉','Intéressés',      stats.counts.interested||0, `${stats.interestRate}% des appels`, .22, '#10B981')}
+        ${statCard('📅','Rappels',         stats.counts.callback||0,   `${stats.callbackRate}% des appels`, .27, '#3B82F6')}
+      </div>
+    </div>
+
+    <!-- Taux -->
+    <div>
+      <div class="section-h">⚡ Taux de performance</div>
+      <div class="rates-grid">
+        ${rateCard(stats.responseRate,'%','Taux réponse', stats.responseRate>=50?'#10B981':stats.responseRate>=30?'#F59E0B':'#EF4444')}
+        ${rateCard(stats.interestRate,'%','Taux intérêt', stats.interestRate>=20?'#10B981':stats.interestRate>=10?'#F59E0B':'#EF4444')}
+        ${rateCard(stats.callbackRate,'%','Taux rappel',  '#3B82F6')}
+      </div>
+    </div>
+
+    <!-- Donut + détail -->
+    <div class="chart-box">
+      <div class="chart-box-title">🍩 Répartition des résultats</div>
+      <div style="display:flex;flex-wrap:wrap;gap:22px;align-items:center;">
+        <div class="chart-wrap" style="width:190px;height:190px;flex-shrink:0;">
+          <canvas id="ch-donut"></canvas>
+        </div>
+        <div class="breakdown-list" style="flex:1;min-width:160px;">
+          ${breakdownHTML(stats)}
+        </div>
+      </div>
+    </div>
+
+    <!-- Bar chart -->
+    <div class="chart-box">
+      <div class="chart-box-title">📊 Analyse par résultat</div>
+      <div class="chart-wrap" style="max-height:220px;">
+        <canvas id="ch-bar"></canvas>
+      </div>
+    </div>
+
+    <!-- Export -->
+    <div class="export-box">
+      <div class="chart-box-title">💾 Exporter les données</div>
+      <div class="export-btns">
+        <button class="btn btn-sky"   onclick="exportJSON()">⬇ JSON complet</button>
+        <button class="btn btn-ghost" onclick="exportCSV()">⬇ CSV résultats</button>
+        <button class="btn btn-ghost" onclick="exportHTML()">⬇ Rapport HTML</button>
+      </div>
+    </div>
+
+    <!-- Nouvelle session -->
+    <div style="text-align:center;padding:4px 0 12px;">
+      <button class="btn btn-accent btn-lg" onclick="newSession()">🚀 Nouvelle session</button>
+    </div>
+  `;
+
+  // Anime les barres
+  setTimeout(() => {
+    document.querySelectorAll('.bk-bar').forEach(b => {
+      b.style.width = b.dataset.w;
+    });
+  }, 350);
+
+  // Graphiques
+  setTimeout(() => {
+    renderDonut(stats);
+    renderBar(stats);
+  }, 420);
+}
+
+function statCard(em, lbl, val, sub, delay, color='var(--text-dark)') {
+  return `<div class="stat-card" style="animation-delay:${delay}s">
+    <div class="stat-lbl">${em} ${lbl}</div>
+    <div class="stat-val" style="color:${color}">${val}</div>
+    <div class="stat-sub">${sub}</div>
+  </div>`;
+}
+
+function rateCard(val, unit, lbl, color) {
+  return `<div class="rate-card">
+    <div class="rate-val" style="color:${color}">${val}${unit}</div>
+    <div class="rate-lbl">${lbl}</div>
+  </div>`;
+}
+
+function breakdownHTML(stats) {
+  const total = stats.called;
+  return CONFIG.results.map(r => {
+    const n   = stats.counts[r.id] || 0;
+    const pct = total > 0 ? Math.round((n / total) * 100) : 0;
+    return `<div class="bk-item">
+      <span class="bk-em">${r.emoji}</span>
+      <span class="bk-lbl">${r.label}</span>
+      <div class="bk-bar-wrap">
+        <div class="bk-bar" style="background:${r.color}" data-w="${pct}%"></div>
+      </div>
+      <span class="bk-count">${n}</span>
+      <span class="bk-pct">${pct}%</span>
+    </div>`;
+  }).join('');
+}
+
+/* ==========================================================
+   📈  GRAPHIQUES CHART.JS
+========================================================== */
+function renderDonut(stats) {
+  const el = document.getElementById('ch-donut');
+  if (!el) return;
+  if (S.charts.donut) S.charts.donut.destroy();
+
+  S.charts.donut = new Chart(el, {
+    type: 'doughnut',
+    data: {
+      labels:   CONFIG.results.map(r => r.label),
+      datasets: [{
+        data:            CONFIG.results.map(r => stats.counts[r.id] || 0),
+        backgroundColor: CONFIG.results.map(r => r.color + 'BB'),
+        borderColor:     CONFIG.results.map(r => r.color),
+        borderWidth: 2,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '66%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: c => ` ${c.label} : ${c.raw} (${stats.called > 0 ? Math.round(c.raw/stats.called*100) : 0}%)`
+          }
+        }
+      },
+      animation: { animateRotate: true, duration: 800 }
+    }
+  });
+}
+
+function renderBar(stats) {
+  const el = document.getElementById('ch-bar');
+  if (!el) return;
+  if (S.charts.bar) S.charts.bar.destroy();
+
+  S.charts.bar = new Chart(el, {
+    type: 'bar',
+    data: {
+      labels:   CONFIG.results.map(r => r.emoji + ' ' + r.label),
+      datasets: [{
+        label: 'Appels',
+        data:            CONFIG.results.map(r => stats.counts[r.id] || 0),
+        backgroundColor: CONFIG.results.map(r => r.color + '99'),
+        borderColor:     CONFIG.results.map(r => r.color),
+        borderWidth: 2,
+        borderRadius: 8,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display:false }, ticks: { font:{ size:10 }, maxRotation:35 } },
+        y: {
+          grid: { color: '#EDF2F7' },
+          ticks: { stepSize:1, font:{ size:11 } },
+          beginAtZero: true
+        }
+      },
+      animation: { duration: 900, easing: 'easeOutQuart' }
+    }
+  });
+}
+
+/* ==========================================================
+   💾  EXPORTS
+========================================================== */
+function exportJSON() {
+  const stats = calcStats();
+  const score = calcScore(stats);
+  const summ  = makeSummary(stats, score);
+
+  const payload = {
+    meta: { version:'1.0', app:'ProspectCall', exportDate: new Date().toISOString() },
+    session: {
+      startTime:    S.sessionStart,
+      endTime:      new Date().toISOString(),
+      city:         S.city,
+      accrocheIndex:S.accrocheIdx,
+      accroche:     CONFIG.accroches[S.accrocheIdx] || '',
+    },
+    stats: {
+      totalProspects: stats.total,
+      calledCount:    stats.called,
+      resultCounts:   stats.counts,
+      responseRate:   stats.responseRate,
+      interestRate:   stats.interestRate,
+      refusalRate:    stats.refusalRate,
+      callbackRate:   stats.callbackRate,
+    },
+    cityScore: { score: score.score, grade: score.grade },
+    summary:   summ.synopsis,
+    tags:      summ.tags,
+    calls:     S.results,
+  };
+
+  dl(JSON.stringify(payload, null, 2),
+     `session_${fname(S.city?.name)}_${fdate()}.json`,
+     'application/json');
+  toast('✅ JSON exporté avec succès !');
+}
+
+function exportCSV() {
+  const header = 'Nom,Activité,Adresse,Téléphone,Résultat,Note,Horodatage';
+  const rows = S.results.map(r => {
+    const p = r.prospectData;
+    return [
+      csvQ(p['Nom']||''), csvQ(p['Activité']||''), csvQ(p['Adresse']||''),
+      csvQ(p['Téléphone']||''), csvQ(r.resultLabel||''),
+      csvQ(r.note||''), csvQ(r.ts||''),
+    ].join(',');
+  });
+  dl('\uFEFF' + [header, ...rows].join('\n'),
+     `resultats_${fname(S.city?.name)}_${fdate()}.csv`,
+     'text/csv;charset=utf-8');
+  toast('✅ CSV exporté avec succès !');
+}
+
+function exportHTML() {
+  const stats = calcStats();
+  const score = calcScore(stats);
+  const summ  = makeSummary(stats, score);
+  const city  = S.city?.name || '—';
+  const date  = new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' });
+
+  const rows = S.results.map((r, i) => {
+    const p   = r.prospectData;
+    const cfg = CONFIG.results.find(x => x.id === r.resultId);
+    return `<tr>
+      <td>${i+1}</td><td>${esc(p['Nom']||'')}</td><td>${esc(p['Activité']||'')}</td>
+      <td>${esc(p['Téléphone']||'')}</td>
+      <td style="color:${cfg?.color||'#333'}">${cfg?.emoji||''} ${esc(r.resultLabel||'')}</td>
+      <td>${esc(r.note||'')}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8">
+<title>Rapport ProspectCall — ${esc(city)}</title>
+<style>
+  body{font-family:system-ui,sans-serif;max-width:920px;margin:40px auto;padding:0 20px;color:#1C2951}
+  h1{color:#2E7FB5;font-size:26px;margin-bottom:4px}
+  .meta{color:#718096;font-size:13px;margin-bottom:24px}
+  .score-wrap{display:flex;align-items:center;gap:18px;margin-bottom:22px}
+  .score-circle{width:80px;height:80px;border-radius:50%;background:${score.color};
+    color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-weight:900;flex-shrink:0;box-shadow:0 6px 20px ${score.color}60}
+  .sg{font-size:32px;line-height:1}.sp{font-size:11px;opacity:.85}
+  .synopsis{background:#EFF6FF;border-radius:12px;padding:14px 18px;font-size:14px;flex:1}
+  .tags{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+  .tag{background:#DBEAFE;color:#1D4ED8;border-radius:99px;padding:3px 10px;font-size:11px;font-weight:600}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+  .sc{background:#F0F6FC;border-radius:10px;padding:14px;text-align:center}
+  .sv{font-size:26px;font-weight:900;color:#2E7FB5}.sl{font-size:11px;color:#718096;text-transform:uppercase}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:14px}
+  th{background:#2E7FB5;color:white;padding:9px;text-align:left;font-size:12px}
+  td{padding:8px;border-bottom:1px solid #E2E8F0}tr:nth-child(even){background:#F8FAFC}
+  @media print{body{margin:20px}.synopsis{background:#f5f5f5}}
+</style></head>
+<body>
+<h1>📞 Rapport de session ProspectCall</h1>
+<p class="meta">Ville : <strong>${esc(city)}</strong> &bull; ${date} &bull;
+Accroche : «&thinsp;${esc((CONFIG.accroches[S.accrocheIdx]||'').substring(0,80))}…&thinsp;»</p>
+<div class="score-wrap">
+  <div class="score-circle"><div class="sg">${score.grade}</div><div class="sp">${score.score}/100</div></div>
+  <div class="synopsis">${summ.synopsis}
+    <div class="tags">${summ.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+  </div>
+</div>
+<div class="stats">
+  <div class="sc"><div class="sv">${stats.total}</div><div class="sl">Total prospects</div></div>
+  <div class="sc"><div class="sv">${stats.called}</div><div class="sl">Appels traités</div></div>
+  <div class="sc"><div class="sv" style="color:#10B981">${stats.counts.interested||0}</div><div class="sl">Intéressés</div></div>
+  <div class="sc"><div class="sv">${stats.responseRate}%</div><div class="sl">Taux réponse</div></div>
+  <div class="sc"><div class="sv" style="color:#10B981">${stats.interestRate}%</div><div class="sl">Taux intérêt</div></div>
+  <div class="sc"><div class="sv">${stats.callbackRate}%</div><div class="sl">Taux rappel</div></div>
+</div>
+<h2 style="color:#2E7FB5;font-size:16px">📋 Détail des appels</h2>
+<table>
+  <tr><th>#</th><th>Nom</th><th>Activité</th><th>Téléphone</th><th>Résultat</th><th>Note</th></tr>
+  ${rows}
+</table>
+</body></html>`;
+
+  dl(html, `rapport_${fname(city)}_${fdate()}.html`, 'text/html;charset=utf-8');
+  toast('✅ Rapport HTML exporté !');
+}
+
+/* ==========================================================
+   🔄  NOUVELLE SESSION
+========================================================== */
+function newSession() {
+  Object.values(S.charts).forEach(c => { try { c.destroy(); } catch(e) {} });
+  Object.assign(S, {
+    accrocheIdx: null, city: null, prospects: [], prospectIdx: 0,
+    results: [], sessionStart: null, currentResult: null, charts: {},
+  });
+  goTo('home');
+}
+
+/* ==========================================================
+   🛠️  UTILITAIRES
+========================================================== */
+function esc(s) {
+  return String(s||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function csvQ(s) {
+  const str = String(s||'');
+  return (str.includes(',') || str.includes('"') || str.includes('\n'))
+    ? '"' + str.replace(/"/g,'""') + '"'
+    : str;
+}
+
+function dl(content, filename, mime) {
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([content], { type: mime })),
+    download: filename,
+  });
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+}
+
+function fname(s) {
+  return (s||'export')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/[^a-zA-Z0-9-_]/g,'_').toLowerCase().slice(0,36);
+}
+
+function fdate() {
+  return new Date().toISOString().slice(0,10);
+}
+
+let _toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+/* ==========================================================
+   🚀  INITIALISATION
+========================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+  // Pré-chargement silencieux des villes
+  loadCities().catch(() => {});
+});
+</script>
+</body>
+</html>

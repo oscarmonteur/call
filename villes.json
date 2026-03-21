@@ -1,0 +1,110 @@
+[
+  {
+    "id": "amiens",
+    "name": "Amiens",
+    "file": "villes/amiens.csv",
+    "potentialClients": 111
+  },
+  {
+    "id": "arras",
+    "name": "Arras",
+    "file": "villes/arras.csv",
+    "potentialClients": 95
+  },
+  {
+    "id": "berk",
+    "name": "Berck",
+    "file": "villes/berk.csv",
+    "potentialClients": 93
+  },
+  {
+    "id": "boulogne",
+    "name": "Boulogne",
+    "file": "villes/boulogne.csv",
+    "potentialClients": 88
+  },
+  {
+    "id": "calais",
+    "name": "Calais",
+    "file": "villes/calais.csv",
+    "potentialClients": 84
+  },
+  {
+    "id": "cambrai",
+    "name": "Cambrai",
+    "file": "villes/cambrai.csv",
+    "potentialClients": 98
+  },
+  {
+    "id": "douai",
+    "name": "Douai",
+    "file": "villes/douai.csv",
+    "potentialClients": 99
+  },
+  {
+    "id": "dunkerque",
+    "name": "Dunkerque",
+    "file": "villes/dunkerque.csv",
+    "potentialClients": 71
+  },
+  {
+    "id": "etaples",
+    "name": "Étaples",
+    "file": "villes/etaples.csv",
+    "potentialClients": 92
+  },
+  {
+    "id": "fruges",
+    "name": "Fruges",
+    "file": "villes/fruges.csv",
+    "potentialClients": 68
+  },
+  {
+    "id": "lille",
+    "name": "Lille",
+    "file": "villes/lille.csv",
+    "potentialClients": 135
+  },
+  {
+    "id": "marconelle",
+    "name": "Marconelle",
+    "file": "villes/marconelle.csv",
+    "potentialClients": 81
+  },
+  {
+    "id": "maubeuge",
+    "name": "Maubeuge",
+    "file": "villes/maubeuge.csv",
+    "potentialClients": 97
+  },
+  {
+    "id": "saintpolteroise",
+    "name": "Saint-Pol-sur-Ternoise",
+    "file": "villes/saintpolteroise.csv",
+    "potentialClients": 78
+  },
+  {
+    "id": "saintquentin",
+    "name": "Saint-Quentin",
+    "file": "villes/saintquentin.csv",
+    "potentialClients": 97
+  },
+  {
+    "id": "touquetparisplage",
+    "name": "Le Touquet-Paris-Plage",
+    "file": "villes/touquetparisplage.csv",
+    "potentialClients": 85
+  },
+  {
+    "id": "valenciennes",
+    "name": "Valenciennes",
+    "file": "villes/valenciennes.csv",
+    "potentialClients": 108
+  },
+  {
+    "id": "villagenord",
+    "name": "Village Nord",
+    "file": "villes/villagenord.csv",
+    "potentialClients": 108
+  }
+]
