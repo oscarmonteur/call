@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Call Prospector | AI Powered</title>
+    <!-- PapaParse for robust CSV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -682,6 +684,42 @@
         id="prospectView"
         class="hidden fade-in max-w-7xl mx-auto w-full mt-6"
       >
+        <!-- Filters Bar -->
+        <div class="mb-6 flex flex-wrap items-center gap-4 p-4 bg-zinc-900/40 backdrop-blur-md border border-white/5 rounded-sm">
+          <div class="text-zinc-500 font-mono text-[10px] uppercase tracking-widest mr-2">Filtres de mission :</div>
+          
+          <label class="flex items-center gap-2 cursor-pointer group">
+            <input type="checkbox" id="filterNoWebsite" class="hidden peer" onchange="applyFilters()">
+            <div class="w-4 h-4 border border-white/20 rounded-sm peer-checked:bg-neon peer-checked:border-neon transition-all flex items-center justify-center">
+              <svg class="w-3 h-3 text-black opacity-0 peer-checked:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <span class="text-xs text-zinc-400 group-hover:text-white transition-colors">Sans site web</span>
+          </label>
+
+          <label class="flex items-center gap-2 cursor-pointer group">
+            <input type="checkbox" id="filterHasPhone" class="hidden peer" onchange="applyFilters()" checked>
+            <div class="w-4 h-4 border border-white/20 rounded-sm peer-checked:bg-neon peer-checked:border-neon transition-all flex items-center justify-center">
+              <svg class="w-3 h-3 text-black opacity-0 peer-checked:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <span class="text-xs text-zinc-400 group-hover:text-white transition-colors">Avec téléphone</span>
+          </label>
+
+          <div class="h-4 w-[1px] bg-white/10 mx-2"></div>
+
+          <div class="relative">
+            <select id="filterMetier" onchange="applyFilters()" class="bg-black/50 border border-white/10 text-zinc-300 text-[11px] font-mono px-3 py-1.5 rounded-sm focus:outline-none focus:border-neon/50 appearance-none pr-8">
+              <option value="all">Tous les métiers</option>
+            </select>
+            <div class="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-zinc-500">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
+          </div>
+
+          <div id="filterCount" class="ml-auto text-[10px] font-mono text-neon/70 uppercase tracking-widest">
+            0 résultats
+          </div>
+        </div>
+
         <!-- Progress Bar -->
         <div class="mb-8">
           <div class="flex justify-between items-end mb-3">
@@ -747,21 +785,42 @@
                 </div>
 
                 <div id="prospectCard" class="hidden">
-                  <div class="mb-6">
-                    <span
-                      id="pActivity"
-                      class="inline-flex items-center px-3 py-1 bg-neon/10 border border-neon/30 text-xs font-mono text-neon uppercase tracking-widest rounded-sm shadow-[0_0_10px_rgba(255,20,147,0.1)]"
-                      >Activité</span
-                    >
+                  <div class="flex justify-between items-start mb-6">
+                    <div class="flex flex-wrap gap-2">
+                      <span
+                        id="pActivity"
+                        class="inline-flex items-center px-3 py-1 bg-neon/10 border border-neon/30 text-xs font-mono text-neon uppercase tracking-widest rounded-sm shadow-[0_0_10px_rgba(255,20,147,0.1)]"
+                        >Activité</span
+                      >
+                      <span
+                        id="pMetierSource"
+                        class="hidden inline-flex items-center px-3 py-1 bg-white/5 border border-white/10 text-xs font-mono text-zinc-400 uppercase tracking-widest rounded-sm"
+                        >Source</span
+                      >
+                      <span
+                        id="pNoWebsiteBadge"
+                        class="hidden inline-flex items-center px-3 py-1 bg-rose-500/10 border border-rose-500/30 text-xs font-mono text-rose-400 uppercase tracking-widest rounded-sm"
+                        >Sans Site Web</span
+                      >
+                    </div>
+                    <div id="pNote" class="flex text-amber-400 text-sm"></div>
                   </div>
-                  <h3
-                    id="pName"
-                    class="text-3xl sm:text-4xl font-display font-bold text-white mb-10 tracking-tight leading-tight"
-                  >
-                    Nom de l'entreprise
-                  </h3>
 
-                  <div class="space-y-8">
+                  <div class="flex flex-col md:flex-row gap-8 mb-10">
+                    <div id="pPhotoContainer" class="hidden shrink-0">
+                      <img id="pPhoto" src="" alt="" class="w-32 h-32 object-cover rounded-sm border border-white/10 shadow-xl" referrerPolicy="no-referrer">
+                    </div>
+                    <div class="flex-1">
+                      <h3
+                        id="pName"
+                        class="text-3xl sm:text-4xl font-display font-bold text-white tracking-tight leading-tight"
+                      >
+                        Nom de l'entreprise
+                      </h3>
+                    </div>
+                  </div>
+
+                  <div class="space-y-8 mb-10">
                     <!-- Address -->
                     <div class="flex items-start group/item">
                       <div
@@ -792,13 +851,16 @@
                         >
                           Localisation
                         </p>
-                        <a
-                          id="pAddress"
-                          href="#"
-                          target="_blank"
-                          class="text-lg text-zinc-300 hover:text-neon transition-colors block leading-snug"
-                          >Adresse complète</a
-                        >
+                        <div class="flex flex-wrap items-center gap-4">
+                          <a
+                            id="pAddress"
+                            href="#"
+                            target="_blank"
+                            class="text-lg text-zinc-300 hover:text-neon transition-colors block leading-snug"
+                            >Adresse complète</a
+                          >
+                          <a id="pMapsBtn" href="#" target="_blank" class="hidden px-3 py-1 bg-white/5 border border-white/10 text-[10px] font-mono text-zinc-400 hover:text-white hover:border-white/30 transition-all rounded-sm uppercase tracking-widest">Voir sur Maps</a>
+                        </div>
                       </div>
                     </div>
 
@@ -832,6 +894,41 @@
                           href="#"
                           class="text-2xl sm:text-3xl font-display font-bold text-white hover:text-neon transition-colors block tracking-tight"
                           >01 23 45 67 89</a
+                        >
+                      </div>
+                    </div>
+
+                    <!-- Website -->
+                    <div id="pWebsiteContainer" class="hidden flex items-start group/item">
+                      <div
+                        class="w-12 h-12 rounded-sm bg-zinc-900/80 flex items-center justify-center border border-white/10 mr-5 group-hover/item:border-neon/50 group-hover/item:bg-neon/10 group-hover/item:shadow-[0_0_15px_rgba(255,20,147,0.2)] transition-all duration-300 shrink-0"
+                      >
+                        <svg
+                          class="h-5 w-5 text-zinc-500 group-hover/item:text-neon transition-colors"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke-width="1.5"
+                          stroke="currentColor"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9s2.015-9 4.5-9m0 0a9.015 9.015 0 018.716 6.747M12 3a9.015 9.015 0 00-8.716 6.747"
+                          />
+                        </svg>
+                      </div>
+                      <div class="flex-1 pt-1">
+                        <p
+                          class="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-1.5"
+                        >
+                          Site Web
+                        </p>
+                        <a
+                          id="pWebsite"
+                          href="#"
+                          target="_blank"
+                          class="text-lg text-zinc-300 hover:text-neon transition-colors block leading-snug break-all"
+                          >www.exemple.com</a
                         >
                       </div>
                     </div>
@@ -1177,7 +1274,8 @@
 
       // State
       let cities = [];
-      let currentProspects = [];
+      let allProspects = []; // Full list of prospects for the current city
+      let currentProspects = []; // Filtered list being displayed
       let currentIndex = 0;
       let currentCityName = "";
       let sessionStats = { noAnswer: 0, refused: 0, callback: 0, success: 0 };
@@ -1808,6 +1906,11 @@
         prospectCard.classList.add("hidden");
         loadingProspects.classList.remove("hidden");
 
+        // Reset filters UI
+        document.getElementById("filterNoWebsite").checked = false;
+        document.getElementById("filterHasPhone").checked = true;
+        document.getElementById("filterMetier").value = "all";
+
         // Reset progress bar visually before loading
         progressBar.style.width = "0%";
         progressText.textContent = "0%";
@@ -1819,8 +1922,8 @@
           const csvText = await response.text();
           parseCSV(csvText);
 
-          currentIndex = 0;
-          renderProspect();
+          // After parsing, apply initial filters
+          applyFilters();
         } catch (error) {
           console.error("Erreur lors du chargement des prospects:", error);
           loadingProspects.innerHTML =
@@ -1828,28 +1931,98 @@
         }
       };
 
-      // Parse CSV Data
+      // Parse CSV Data using PapaParse
       function parseCSV(csvText) {
-        const lines = csvText
-          .split(/\r?\n/)
-          .filter((line) => line.trim() !== "");
-        // Skip header (first line)
-        currentProspects = lines
-          .slice(1)
-          .map((line) => {
-            const [nom, activite, adresse, telephone] = line.split(";");
+        const results = Papa.parse(csvText, {
+          header: true,
+          skipEmptyLines: true,
+          delimiter: ";",
+        });
+
+        const data = results.data;
+        const headers = results.meta.fields;
+
+        // Check if it's the new format or old format
+        // Old format: nom;activite;adresse;telephone
+        // New format: nom;activite;adresse;telephone;note;websiteUrl;mapsLink;photoUrl;metierSource;fichierSource;categorieMaps;cibleSansSiteWeb
+
+        allProspects = data
+          .map((row) => {
+            // Normalize data to handle both formats
             return {
-              nom: nom?.trim() || "Non renseigné",
-              activite: activite?.trim() || "Non renseigné",
-              adresse: adresse?.trim() || "Non renseigné",
-              telephone: telephone?.trim() || "Non renseigné",
+              nom: row.nom?.trim() || "Non renseigné",
+              activite: row.activite?.trim() || "Non renseigné",
+              adresse: row.adresse?.trim() || "Non renseigné",
+              telephone: row.telephone?.trim() || "Non renseigné",
+              // New fields with defaults
+              note: row.note ? parseFloat(row.note) : null,
+              websiteUrl: row.websiteUrl?.trim() || null,
+              mapsLink: row.mapsLink?.trim() || null,
+              photoUrl: row.photoUrl?.trim() || null,
+              metierSource: row.metierSource?.trim() || null,
+              cibleSansSiteWeb:
+                row.cibleSansSiteWeb === "true" ||
+                row.cibleSansSiteWeb === "1" ||
+                false,
             };
           })
-          .filter((p) => p.nom !== "Non renseigné"); // Filter out empty rows
+          .filter((p) => p.nom !== "Non renseigné");
+
+        // Populate metier filter
+        const metiers = [
+          ...new Set(
+            allProspects
+              .map((p) => p.metierSource)
+              .filter((m) => m && m !== "null"),
+          ),
+        ];
+        const metierSelect = document.getElementById("filterMetier");
+        metierSelect.innerHTML = '<option value="all">Tous les métiers</option>';
+        metiers.forEach((m) => {
+          const opt = document.createElement("option");
+          opt.value = m;
+          opt.textContent = m;
+          metierSelect.appendChild(opt);
+        });
       }
+
+      // Apply Filters to allProspects
+      window.applyFilters = function () {
+        const noWebsiteOnly = document.getElementById("filterNoWebsite").checked;
+        const hasPhoneOnly = document.getElementById("filterHasPhone").checked;
+        const metierFilter = document.getElementById("filterMetier").value;
+
+        currentProspects = allProspects.filter((p) => {
+          if (noWebsiteOnly && !p.cibleSansSiteWeb) return false;
+          if (hasPhoneOnly && (!p.telephone || p.telephone === "Non renseigné"))
+            return false;
+          if (metierFilter !== "all" && p.metierSource !== metierFilter)
+            return false;
+          return true;
+        });
+
+        document.getElementById("filterCount").textContent =
+          `${currentProspects.length} résultats`;
+
+        currentIndex = 0;
+        renderProspect();
+      };
 
       // Render Current Prospect
       function renderProspect() {
+        if (currentProspects.length === 0) {
+          loadingProspects.classList.remove("hidden");
+          loadingProspects.innerHTML =
+            '<p class="text-zinc-500 font-mono text-sm py-20">Aucun prospect ne correspond à vos filtres.</p>';
+          prospectCard.classList.add("hidden");
+          
+          // Reset progress
+          progressBar.style.width = "0%";
+          progressText.textContent = "0%";
+          progressCount.textContent = "0 / 0";
+          return;
+        }
+
         if (currentIndex >= currentProspects.length) {
           showDashboard();
           return;
@@ -1878,14 +2051,77 @@
         pName.textContent = prospect.nom;
         pActivity.textContent = prospect.activite;
 
+        // Metier Source Badge
+        const metierBadge = document.getElementById("pMetierSource");
+        if (prospect.metierSource && prospect.metierSource !== "null") {
+          metierBadge.textContent = prospect.metierSource;
+          metierBadge.classList.remove("hidden");
+        } else {
+          metierBadge.classList.add("hidden");
+        }
+
+        // No Website Badge
+        const noWebBadge = document.getElementById("pNoWebsiteBadge");
+        if (prospect.cibleSansSiteWeb) {
+          noWebBadge.classList.remove("hidden");
+        } else {
+          noWebBadge.classList.add("hidden");
+        }
+
+        // Note / Stars
+        const noteContainer = document.getElementById("pNote");
+        noteContainer.innerHTML = "";
+        if (prospect.note) {
+          const fullStars = Math.floor(prospect.note);
+          for (let i = 0; i < 5; i++) {
+            const star = document.createElement("span");
+            star.textContent = i < fullStars ? "★" : "☆";
+            noteContainer.appendChild(star);
+          }
+          const noteVal = document.createElement("span");
+          noteVal.className = "ml-2 text-xs text-zinc-500 font-mono";
+          noteVal.textContent = `(${prospect.note})`;
+          noteContainer.appendChild(noteVal);
+        }
+
+        // Photo
+        const photoContainer = document.getElementById("pPhotoContainer");
+        const photoImg = document.getElementById("pPhoto");
+        if (prospect.photoUrl && prospect.photoUrl !== "null") {
+          photoImg.src = prospect.photoUrl;
+          photoContainer.classList.remove("hidden");
+        } else {
+          photoContainer.classList.add("hidden");
+        }
+
         // Address with Google Maps link
         pAddress.textContent = prospect.adresse;
-        pAddress.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(prospect.adresse)}`;
+        const mapsUrl = prospect.mapsLink && prospect.mapsLink !== "null" 
+          ? prospect.mapsLink 
+          : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(prospect.adresse)}`;
+        pAddress.href = mapsUrl;
+        
+        const mapsBtn = document.getElementById("pMapsBtn");
+        mapsBtn.href = mapsUrl;
+        mapsBtn.classList.remove("hidden");
 
         // Phone
         pPhone.textContent = prospect.telephone;
         const cleanPhone = prospect.telephone.replace(/\s+/g, "");
         pPhone.href = `tel:${cleanPhone}`;
+
+        // Website
+        const webContainer = document.getElementById("pWebsiteContainer");
+        const webLink = document.getElementById("pWebsite");
+        if (prospect.websiteUrl && prospect.websiteUrl !== "null") {
+          webLink.textContent = prospect.websiteUrl;
+          webLink.href = prospect.websiteUrl.startsWith("http") 
+            ? prospect.websiteUrl 
+            : `https://${prospect.websiteUrl}`;
+          webContainer.classList.remove("hidden");
+        } else {
+          webContainer.classList.add("hidden");
+        }
       }
 
       // View Navigation
