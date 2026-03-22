@@ -286,5 +286,209 @@
     "name": "Wattrelos",
     "file": "villes/wattrelos.csv",
     "potentialClients": 83
+  },
+  {
+    "id": "rouen",
+    "name": "Rouen",
+    "file": "villes/Rouen.csv",
+    "potentialClients": 119
+  },
+  {
+    "id": "lehavre",
+    "name": "Le Havre",
+    "file": "villes/LeHavre.csv",
+    "potentialClients": 102
+  },
+  {
+    "id": "dieppe",
+    "name": "Dieppe",
+    "file": "villes/Dieppe.csv",
+    "potentialClients": 95
+  },
+  {
+    "id": "legrandquevilly",
+    "name": "Le Grand-Quevilly",
+    "file": "villes/LeGrand-Quevilly.csv",
+    "potentialClients": 83
+  },
+  {
+    "id": "montsaintaignan",
+    "name": "Mont-Saint-Aignan",
+    "file": "villes/Mont-Saint-Aignan.csv",
+    "potentialClients": 89
+  },
+  {
+    "id": "elbeuf",
+    "name": "Elbeuf",
+    "file": "villes/Elbeuf.csv",
+    "potentialClients": 89
+  },
+  {
+    "id": "yvetot",
+    "name": "Yvetot",
+    "file": "villes/Yvetot.csv",
+    "potentialClients": 90
+  },
+  {
+    "id": "fecamp",
+    "name": "Fécamp",
+    "file": "villes/Fecamp.csv",
+    "potentialClients": 95
+  },
+  {
+    "id": "charlevillemezieres",
+    "name": "Charleville-Mézières",
+    "file": "villes/Charleville-Mezieres.csv",
+    "potentialClients": 103
+  },
+  {
+    "id": "sedan",
+    "name": "Sedan",
+    "file": "villes/Sedan.csv",
+    "potentialClients": 90
+  },
+  {
+    "id": "rethel",
+    "name": "Rethel",
+    "file": "villes/Rethel.csv",
+    "potentialClients": 89
+  },
+  {
+    "id": "revin",
+    "name": "Revin",
+    "file": "villes/Revin.csv",
+    "potentialClients": 88
+  },
+  {
+    "id": "givet",
+    "name": "Givet",
+    "file": "villes/Givet.csv",
+    "potentialClients": 89
+  },
+  {
+    "id": "vouziers",
+    "name": "Vouziers",
+    "file": "villes/Vouziers.csv",
+    "potentialClients": 85
+  },
+  {
+    "id": "bognysurmeuse",
+    "name": "Bogny-sur-Meuse",
+    "file": "villes/Bogny-sur-Meuse.csv",
+    "potentialClients": 88
+  },
+  {
+    "id": "nouzonville",
+    "name": "Nouzonville",
+    "file": "villes/Nouzonville.csv",
+    "potentialClients": 82
+  },
+  {
+    "id": "reims",
+    "name": "Reims",
+    "file": "villes/Reims.csv",
+    "potentialClients": 110
+  },
+  {
+    "id": "chalonsenchampagne",
+    "name": "Châlons-en-Champagne",
+    "file": "villes/Chalons-en-Champagne.csv",
+    "potentialClients": 95
+  },
+  {
+    "id": "epernay",
+    "name": "Épernay",
+    "file": "villes/Epernay.csv",
+    "potentialClients": 97
+  },
+  {
+    "id": "tinqueux",
+    "name": "Tinqueux",
+    "file": "villes/Tinqueux.csv",
+    "potentialClients": 88
+  },
+  {
+    "id": "betheny",
+    "name": "Bétheny",
+    "file": "villes/Betheny.csv",
+    "potentialClients": 87
+  },
+  {
+    "id": "cormontreuil",
+    "name": "Cormontreuil",
+    "file": "villes/Cormontreuil.csv",
+    "potentialClients": 86
+  },
+  {
+    "id": "fismes",
+    "name": "Fismes",
+    "file": "villes/Fismes.csv",
+    "potentialClients": 82
+  },
+  {
+    "id": "saintemenehould",
+    "name": "Sainte-Menehould",
+    "file": "villes/Sainte-Menehould.csv",
+    "potentialClients": 86
+  },
+  {
+    "id": "sezanne",
+    "name": "Sézanne",
+    "file": "villes/Sezanne.csv",
+    "potentialClients": 89
+  },
+  {
+    "id": "nancy",
+    "name": "Nancy",
+    "file": "villes/Nancy.csv",
+    "potentialClients": 112
+  },
+  {
+    "id": "luneville",
+    "name": "Lunéville",
+    "file": "villes/Luneville.csv",
+    "potentialClients": 89
+  },
+  {
+    "id": "toul",
+    "name": "Toul",
+    "file": "villes/Toul.csv",
+    "potentialClients": 88
+  },
+  {
+    "id": "longwy",
+    "name": "Longwy",
+    "file": "villes/Longwy.csv",
+    "potentialClients": 91
+  },
+  {
+    "id": "pontamousson",
+    "name": "Pont-à-Mousson",
+    "file": "villes/Pont-a-Mousson.csv",
+    "potentialClients": 92
+  },
+  {
+    "id": "laxou",
+    "name": "Laxou",
+    "file": "villes/Laxou.csv",
+    "potentialClients": 93
+  },
+  {
+    "id": "villerslesnancy",
+    "name": "Villers-lès-Nancy",
+    "file": "villes/Villers-les-Nancy.csv",
+    "potentialClients": 88
+  },
+  {
+    "id": "saintmax",
+    "name": "Saint-Max",
+    "file": "villes/Saint-Max.csv",
+    "potentialClients": 95
+  },
+  {
+    "id": "jarny",
+    "name": "Jarny",
+    "file": "villes/Jarny.csv",
+    "potentialClients": 74
   }
 ]
