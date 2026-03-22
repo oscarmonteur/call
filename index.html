@@ -1,0 +1,2077 @@
+<!doctype html>
+<html lang="fr" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Call Prospector | AI Powered</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              display: ["Space Grotesk", "sans-serif"],
+            },
+            colors: {
+              neon: {
+                DEFAULT: "#ff1493",
+                purple: "#ff69b4",
+                dim: "rgba(255, 20, 147, 0.1)",
+              },
+            },
+            animation: {
+              marquee: "marquee 40s linear infinite",
+              blob: "blob 15s infinite alternate",
+              "blob-reverse": "blob-reverse 20s infinite alternate",
+              "grid-move": "grid-move 20s linear infinite",
+            },
+            keyframes: {
+              marquee: {
+                "0%": { transform: "translateX(0%)" },
+                "100%": { transform: "translateX(-50%)" },
+              },
+              blob: {
+                "0%": { transform: "translate(0px, 0px) scale(1)" },
+                "33%": { transform: "translate(30px, -50px) scale(1.1)" },
+                "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
+                "100%": { transform: "translate(0px, 0px) scale(1)" },
+              },
+              "blob-reverse": {
+                "0%": { transform: "translate(0px, 0px) scale(1)" },
+                "33%": { transform: "translate(-30px, 50px) scale(1.2)" },
+                "66%": { transform: "translate(20px, -20px) scale(0.8)" },
+                "100%": { transform: "translate(0px, 0px) scale(1)" },
+              },
+              "grid-move": {
+                "0%": { transform: "translateY(0)" },
+                "100%": { transform: "translateY(40px)" },
+              },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        background-color: #030303;
+        color: #e5e5e5;
+        overflow-x: hidden;
+      }
+
+      /* Animated Background Elements */
+      .bg-grid {
+        position: fixed;
+        inset: -100%;
+        width: 300%;
+        height: 300%;
+        background-size: 40px 40px;
+        background-image:
+          linear-gradient(
+            to right,
+            rgba(255, 20, 147, 0.05) 1px,
+            transparent 1px
+          ),
+          linear-gradient(
+            to bottom,
+            rgba(255, 20, 147, 0.05) 1px,
+            transparent 1px
+          );
+        z-index: -2;
+        transform-origin: center;
+        /* Perspective effect */
+        transform: perspective(500px) rotateX(60deg) translateY(0);
+        animation: grid-move 10s linear infinite;
+      }
+
+      .ambient-light {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .blob-1 {
+        position: absolute;
+        top: -10%;
+        left: -10%;
+        width: 60vw;
+        height: 60vw;
+        background: radial-gradient(
+          circle,
+          rgba(255, 20, 147, 0.25) 0%,
+          rgba(255, 105, 180, 0.1) 40%,
+          rgba(0, 0, 0, 0) 70%
+        );
+        filter: blur(60px);
+      }
+
+      .blob-2 {
+        position: absolute;
+        bottom: -20%;
+        right: -10%;
+        width: 70vw;
+        height: 70vw;
+        background: radial-gradient(
+          circle,
+          rgba(255, 105, 180, 0.25) 0%,
+          rgba(255, 20, 147, 0.1) 40%,
+          rgba(0, 0, 0, 0) 70%
+        );
+        filter: blur(80px);
+      }
+
+      .fade-in {
+        animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+          filter: blur(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+          filter: blur(0);
+        }
+      }
+
+      .animate-gradient-text {
+        background-size: 200% auto;
+        animation: gradientText 3s linear infinite;
+      }
+      @keyframes gradientText {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      .animate-fade-in-right {
+        animation: fadeInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s forwards;
+        opacity: 0;
+      }
+      @keyframes fadeInRight {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .glow-text {
+        text-shadow: 0 0 20px rgba(255, 20, 147, 0.6);
+      }
+      .glow-box {
+        box-shadow: 0 0 15px rgba(255, 20, 147, 0.3);
+      }
+      .glow-bar {
+        box-shadow:
+          0 0 15px rgba(255, 20, 147, 0.6),
+          0 0 5px rgba(255, 20, 147, 0.8);
+      }
+
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #030303;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #222;
+        border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #444;
+      }
+
+      /* Marquee mask */
+      .marquee-mask {
+        mask-image: linear-gradient(
+          to right,
+          transparent,
+          black 10%,
+          black 90%,
+          transparent
+        );
+        -webkit-mask-image: linear-gradient(
+          to right,
+          transparent,
+          black 10%,
+          black 90%,
+          transparent
+        );
+      }
+
+      /* Mission Start Animation */
+      .glitch-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: #030303;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+      }
+      .glitch-overlay.active {
+        opacity: 1;
+        pointer-events: all;
+      }
+      .glitch-text {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: 0.3em;
+        text-shadow:
+          3px 0 #ff1493,
+          -3px 0 #8a2be2;
+        animation: glitch 0.2s infinite;
+        font-family: "Space Grotesk", sans-serif;
+        text-align: center;
+      }
+      @keyframes glitch {
+        0% {
+          transform: translate(0);
+        }
+        20% {
+          transform: translate(-2px, 2px);
+        }
+        40% {
+          transform: translate(-2px, -2px);
+        }
+        60% {
+          transform: translate(2px, 2px);
+        }
+        80% {
+          transform: translate(2px, -2px);
+        }
+        100% {
+          transform: translate(0);
+        }
+      }
+      @keyframes scaleX {
+        from {
+          transform: scaleX(0);
+        }
+        to {
+          transform: scaleX(1);
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="min-h-screen flex flex-col selection:bg-neon selection:text-black"
+  >
+    <!-- Animated Background -->
+    <div class="bg-grid"></div>
+    <div class="ambient-light">
+      <div class="blob-1 animate-blob"></div>
+      <div class="blob-2 animate-blob-reverse"></div>
+    </div>
+
+    <!-- Header -->
+    <header
+      class="fixed top-0 w-full z-50 bg-[#030303]/60 backdrop-blur-xl border-b border-white/5"
+    >
+      <div
+        class="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center"
+      >
+        <div
+          class="flex items-center gap-3 cursor-pointer group"
+          onclick="goHome()"
+        >
+          <div
+            class="w-2.5 h-2.5 rounded-full bg-neon glow-box animate-pulse group-hover:scale-125 transition-transform"
+          ></div>
+          <span class="font-display font-bold text-xl tracking-tight text-white"
+            >PROSPECTOR<span class="text-neon">.AI</span></span
+          >
+        </div>
+        <button
+          id="backBtn"
+          class="hidden text-xs font-mono uppercase tracking-widest text-zinc-500 hover:text-neon transition-colors flex items-center gap-2"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            ></path>
+          </svg>
+          Retour aux territoires
+        </button>
+      </div>
+    </header>
+
+    <main class="flex-grow flex flex-col p-6 pt-24 relative z-10">
+      <!-- Vue Accueil (Landing Page) -->
+      <div
+        id="homeView"
+        class="fade-in flex-grow flex flex-col items-center justify-center w-full"
+      >
+        <div class="text-center max-w-4xl mx-auto mt-10 sm:mt-20 px-4">
+          <img src="dragon.gif" alt="Mascot Dragon" class="w-24 h-24 mx-auto mb-6 object-contain" />
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neon/5 border border-neon/20 text-neon text-xs font-mono uppercase tracking-widest mb-8 shadow-[0_0_15px_rgba(255,20,147,0.1)]"
+          >
+            <span class="w-1.5 h-1.5 rounded-full bg-neon animate-ping"></span>
+            Système Opérationnel
+          </div>
+
+          <h1
+            class="text-5xl sm:text-7xl md:text-8xl font-display font-bold text-white tracking-tighter mb-6 leading-[1.1] flex flex-col items-center justify-center"
+          >
+            Dominez votre <br />
+            <div class="flex items-baseline justify-center gap-4 flex-wrap">
+              <span
+                class="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-rose-300 to-pink-500 animate-gradient-text"
+                >prospection.</span
+              >
+              <span class="text-2xl sm:text-3xl md:text-4xl font-light text-rose-300/80 italic animate-fade-in-right">comme un jeu</span>
+            </div>
+          </h1>
+
+          <p
+            class="text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-12 font-light leading-relaxed"
+          >
+            Accédez instantanément aux bases de données d'entreprises. Optimisez
+            vos appels, suivez votre progression en temps réel et maximisez
+            votre taux de conversion.
+          </p>
+
+          <button
+            id="startBtn"
+            class="group relative px-10 py-5 bg-white text-black font-display font-bold text-sm uppercase tracking-widest hover:bg-neon hover:shadow-[0_0_40px_rgba(255,20,147,0.5)] transition-all duration-500 overflow-hidden rounded-sm"
+          >
+            <span
+              class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"
+            ></span>
+            <span class="relative z-10 flex items-center gap-3">
+              Initialiser une session
+              <svg
+                class="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 8l4 4m0 0l-4 4m4-4H3"
+                ></path>
+              </svg>
+            </span>
+          </button>
+        </div>
+
+        <!-- Infinite Reviews Marquee -->
+        <div
+          class="w-full max-w-7xl mx-auto mt-24 mb-12 overflow-hidden marquee-mask"
+        >
+          <div
+            class="flex w-max animate-marquee hover:[animation-play-state:paused]"
+          >
+            <!-- Group 1 -->
+            <div class="flex gap-6 px-3">
+              <div
+                class="w-80 shrink-0 bg-zinc-900/40 backdrop-blur-md border border-white/5 p-6 rounded-2xl hover:border-neon/30 transition-colors"
+              >
+                <div class="flex gap-1 text-neon mb-4 text-sm">★★★★★</div>
+                <p class="text-zinc-300 font-light leading-relaxed mb-6">
+                  "L'interface est ultra rapide, on enchaîne les appels sans
+                  aucune friction. Mon équipe a doublé son volume d'appels."
+                </p>
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-rose-400 flex items-center justify-center text-xs font-bold text-black"
+                  >
+                    JM
+                  </div>
+                  <div>
+                    <p class="text-sm font-bold text-white">Jean M.</p>
+                    <p class="text-xs text-zinc-500 font-mono">SDR Manager</p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="w-80 shrink-0 bg-zinc-900/40 backdrop-blur-md border border-white/5 p-6 rounded-2xl hover:border-neon/30 transition-colors"
+              >
+                <div class="flex gap-1 text-neon mb-4 text-sm">★★★★★</div>
+                <p class="text-zinc-300 font-light leading-relaxed mb-6">
+                  "Le lien direct vers Google Maps nous fait gagner un temps fou
+                  pour qualifier la zone du prospect."
+                </p>
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-8 h-8 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-xs font-bold text-white"
+                  >
+                    EL
+                  </div>
+                  <div>
+                    <p class="text-sm font-bold text-white">Emma L.</p>
+                    <p class="text-xs text-zinc-500 font-mono">
+                      Commerciale Terrain
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="w-80 shrink-0 bg-zinc-900/40 backdrop-blur-md border border-white/5 p-6 rounded-2xl hover:border-neon/30 transition-colors"
+              >
+                <div class="flex gap-1 text-neon mb-4 text-sm">★★★★★</div>
+                <p class="text-zinc-300 font-light leading-relaxed mb-6">
+                  "Design immersif et focus. La barre de progression neon me
+                  motive à finir ma liste tous les jours."
+                </p>
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-rose-300 flex items-center justify-center text-xs font-bold text-black"
+                  >
+                    TB
+                  </div>
+                  <div>
+                    <p class="text-sm font-bold text-white">Thomas B.</p>
+                    <p class="text-xs text-zinc-500 font-mono">
+                      Business Developer
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="w-80 shrink-0 bg-zinc-900/40 backdrop-blur-md border border-white/5 p-6 rounded-2xl hover:border-neon/30 transition-colors"
+              >
+                <div class="flex gap-1 text-neon mb-4 text-sm">★★★★★</div>
+                <p class="text-zinc-300 font-light leading-relaxed mb-6">
+                  "Les bases de données par ville sont parfaitement intégrées.
+                  Un outil redoutable pour la conquête."
+                </p>
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-8 h-8 rounded-full bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center text-xs font-bold text-black"
+                  >
+                    SD
+                  </div>
+                  <div>
+                    <p class="text-sm font-bold text-white">Sophie D.</p>
+                    <p class="text-xs text-zinc-500 font-mono">
+                      Directrice des Ventes
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Group 2 (Duplicate for seamless loop) -->
+            <div class="flex gap-6 px-3">
+              <div
+                class="w-80 shrink-0 bg-zinc-900/40 backdrop-blur-md border border-white/5 p-6 rounded-2xl hover:border-neon/30 transition-colors"
+              >
+                <div class="flex gap-1 text-neon mb-4 text-sm">★★★★★</div>
+                <p class="text-zinc-300 font-light leading-relaxed mb-6">
+                  "L'interface est ultra rapide, on enchaîne les appels sans
+                  aucune friction. Mon équipe a doublé son volume d'appels."
+                </p>
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-500 to-rose-400 flex items-center justify-center text-xs font-bold text-black"
+                  >
+                    JM
+                  </div>
+                  <div>
+                    <p class="text-sm font-bold text-white">Jean M.</p>
+                    <p class="text-xs text-zinc-500 font-mono">SDR Manager</p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="w-80 shrink-0 bg-zinc-900/40 backdrop-blur-md border border-white/5 p-6 rounded-2xl hover:border-neon/30 transition-colors"
+              >
+                <div class="flex gap-1 text-neon mb-4 text-sm">★★★★★</div>
+                <p class="text-zinc-300 font-light leading-relaxed mb-6">
+                  "Le lien direct vers Google Maps nous fait gagner un temps fou
+                  pour qualifier la zone du prospect."
+                </p>
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-8 h-8 rounded-full bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center text-xs font-bold text-white"
+                  >
+                    EL
+                  </div>
+                  <div>
+                    <p class="text-sm font-bold text-white">Emma L.</p>
+                    <p class="text-xs text-zinc-500 font-mono">
+                      Commerciale Terrain
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="w-80 shrink-0 bg-zinc-900/40 backdrop-blur-md border border-white/5 p-6 rounded-2xl hover:border-neon/30 transition-colors"
+              >
+                <div class="flex gap-1 text-neon mb-4 text-sm">★★★★★</div>
+                <p class="text-zinc-300 font-light leading-relaxed mb-6">
+                  "Design immersif et focus. La barre de progression neon me
+                  motive à finir ma liste tous les jours."
+                </p>
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-rose-300 flex items-center justify-center text-xs font-bold text-black"
+                  >
+                    TB
+                  </div>
+                  <div>
+                    <p class="text-sm font-bold text-white">Thomas B.</p>
+                    <p class="text-xs text-zinc-500 font-mono">
+                      Business Developer
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="w-80 shrink-0 bg-zinc-900/40 backdrop-blur-md border border-white/5 p-6 rounded-2xl hover:border-neon/30 transition-colors"
+              >
+                <div class="flex gap-1 text-neon mb-4 text-sm">★★★★★</div>
+                <p class="text-zinc-300 font-light leading-relaxed mb-6">
+                  "Les bases de données par ville sont parfaitement intégrées.
+                  Un outil redoutable pour la conquête."
+                </p>
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-8 h-8 rounded-full bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center text-xs font-bold text-black"
+                  >
+                    SD
+                  </div>
+                  <div>
+                    <p class="text-sm font-bold text-white">Sophie D.</p>
+                    <p class="text-xs text-zinc-500 font-mono">
+                      Directrice des Ventes
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vue Villes (Globe 3D) -->
+      <div
+        id="citiesView"
+        class="hidden fade-in w-full h-[75vh] relative rounded-xl overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(255,20,147,0.05)] mt-4"
+      >
+        <div id="globeViz" class="w-full h-full cursor-move"></div>
+
+        <div class="absolute top-6 left-6 pointer-events-none z-10">
+          <h2
+            class="text-4xl md:text-5xl font-display font-bold text-white tracking-tight mb-2 drop-shadow-lg"
+          >
+            Territoires
+          </h2>
+          <p class="text-zinc-300 font-light text-lg drop-shadow-md">
+            Sélectionnez une cible sur le globe.
+          </p>
+        </div>
+
+        <div
+          id="loadingCities"
+          class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm z-20 hidden"
+        >
+          <div
+            class="inline-block h-12 w-12 animate-spin rounded-full border-2 border-solid border-neon border-r-transparent"
+          ></div>
+          <p
+            class="mt-6 text-neon font-mono text-xs uppercase tracking-widest animate-pulse"
+          >
+            Connexion au satellite...
+          </p>
+        </div>
+
+        <div
+          id="citySelectionPanel"
+          class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-md border border-neon/50 p-6 rounded-sm w-[90%] max-w-md transform translate-y-[150%] opacity-0 transition-all duration-500 flex flex-col items-center text-center shadow-[0_0_30px_rgba(255,20,147,0.2)] z-10"
+        >
+          <div
+            class="text-neon font-mono text-xs uppercase tracking-widest mb-1 flex items-center gap-2"
+          >
+            <span class="w-2 h-2 rounded-full bg-neon animate-pulse"></span>
+            Cible Verrouillée
+          </div>
+          <h3
+            id="selectedCityName"
+            class="text-3xl font-display font-bold text-white mb-2"
+          >
+            Ville
+          </h3>
+          <p
+            id="selectedCityProspects"
+            class="text-zinc-400 text-sm mb-6 font-mono"
+          >
+            0 prospects détectés
+          </p>
+          <button
+            id="startMissionBtn"
+            class="w-full group relative px-8 py-4 bg-neon text-black font-display font-bold text-sm uppercase tracking-widest hover:bg-white hover:shadow-[0_0_40px_rgba(255,20,147,0.6)] transition-all duration-300 rounded-sm overflow-hidden"
+          >
+            <span class="relative z-10 flex items-center justify-center gap-3">
+              Démarrer la mission
+              <svg
+                class="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                ></path>
+              </svg>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mission Start Overlay -->
+      <div id="missionOverlay" class="glitch-overlay">
+        <div class="glitch-text">Mission Start</div>
+        <div
+          class="mt-8 text-neon font-mono text-sm tracking-widest animate-pulse"
+        >
+          Initialisation des systèmes...
+        </div>
+        <div class="w-64 h-1 bg-zinc-800 mt-8 rounded-full overflow-hidden">
+          <div
+            class="h-full bg-neon w-full origin-left animate-[scaleX_2s_ease-in-out_forwards]"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Vue Prospect -->
+      <div
+        id="prospectView"
+        class="hidden fade-in max-w-7xl mx-auto w-full mt-6"
+      >
+        <!-- Progress Bar -->
+        <div class="mb-8">
+          <div class="flex justify-between items-end mb-3">
+            <div class="flex items-center gap-4">
+              <span
+                id="cityNameBadge"
+                class="font-display font-bold text-2xl text-white tracking-tight uppercase"
+                >VILLE</span
+              >
+              <span
+                class="px-3 py-1 rounded bg-white/5 text-zinc-400 text-xs font-mono border border-white/10"
+                id="progressCount"
+                >0 / 0</span
+              >
+            </div>
+            <span
+              id="progressText"
+              class="text-neon font-mono font-bold text-xl glow-text"
+              >0%</span
+            >
+          </div>
+          <div
+            class="w-full bg-zinc-900/50 h-1.5 rounded-full overflow-hidden border border-white/5 backdrop-blur-sm"
+          >
+            <div
+              id="progressBar"
+              class="bg-neon h-full glow-bar transition-all duration-700 ease-out"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
+          <!-- Left Column: Prospect Info -->
+          <div class="xl:col-span-5 flex flex-col gap-6">
+            <div
+              class="bg-zinc-900/40 backdrop-blur-xl border border-white/10 relative group rounded-sm shadow-2xl flex-grow flex flex-col"
+            >
+              <!-- Decorative corners -->
+              <div
+                class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-neon/50"
+              ></div>
+              <div
+                class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-neon/50"
+              ></div>
+              <div
+                class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-neon/50"
+              ></div>
+              <div
+                class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-neon/50"
+              ></div>
+
+              <div class="p-8 sm:p-10 flex-grow">
+                <div id="loadingProspects" class="text-center py-20 hidden">
+                  <div
+                    class="inline-block h-12 w-12 animate-spin rounded-full border-2 border-solid border-neon border-r-transparent"
+                  ></div>
+                  <p
+                    class="mt-6 text-neon font-mono text-xs uppercase tracking-widest animate-pulse"
+                  >
+                    Extraction des données...
+                  </p>
+                </div>
+
+                <div id="prospectCard" class="hidden">
+                  <div class="mb-6">
+                    <span
+                      id="pActivity"
+                      class="inline-flex items-center px-3 py-1 bg-neon/10 border border-neon/30 text-xs font-mono text-neon uppercase tracking-widest rounded-sm shadow-[0_0_10px_rgba(255,20,147,0.1)]"
+                      >Activité</span
+                    >
+                  </div>
+                  <h3
+                    id="pName"
+                    class="text-3xl sm:text-4xl font-display font-bold text-white mb-10 tracking-tight leading-tight"
+                  >
+                    Nom de l'entreprise
+                  </h3>
+
+                  <div class="space-y-8">
+                    <!-- Address -->
+                    <div class="flex items-start group/item">
+                      <div
+                        class="w-12 h-12 rounded-sm bg-zinc-900/80 flex items-center justify-center border border-white/10 mr-5 group-hover/item:border-neon/50 group-hover/item:bg-neon/10 group-hover/item:shadow-[0_0_15px_rgba(255,20,147,0.2)] transition-all duration-300 shrink-0"
+                      >
+                        <svg
+                          class="h-5 w-5 text-zinc-500 group-hover/item:text-neon transition-colors"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke-width="1.5"
+                          stroke="currentColor"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
+                          />
+                        </svg>
+                      </div>
+                      <div class="flex-1 pt-1">
+                        <p
+                          class="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-1.5"
+                        >
+                          Localisation
+                        </p>
+                        <a
+                          id="pAddress"
+                          href="#"
+                          target="_blank"
+                          class="text-lg text-zinc-300 hover:text-neon transition-colors block leading-snug"
+                          >Adresse complète</a
+                        >
+                      </div>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="flex items-start group/item">
+                      <div
+                        class="w-12 h-12 rounded-sm bg-zinc-900/80 flex items-center justify-center border border-white/10 mr-5 group-hover/item:border-neon/50 group-hover/item:bg-neon/10 group-hover/item:shadow-[0_0_15px_rgba(255,20,147,0.2)] transition-all duration-300 shrink-0"
+                      >
+                        <svg
+                          class="h-5 w-5 text-zinc-500 group-hover/item:text-neon transition-colors"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke-width="1.5"
+                          stroke="currentColor"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.896-1.596-5.25-3.95-6.847-6.847l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"
+                          />
+                        </svg>
+                      </div>
+                      <div class="flex-1 pt-1">
+                        <p
+                          class="text-xs font-mono text-zinc-500 uppercase tracking-widest mb-1.5"
+                        >
+                          Contact direct
+                        </p>
+                        <a
+                          id="pPhone"
+                          href="#"
+                          class="text-2xl sm:text-3xl font-display font-bold text-white hover:text-neon transition-colors block tracking-tight"
+                          >01 23 45 67 89</a
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="bg-black/40 p-6 border-t border-white/5 flex justify-end gap-4 backdrop-blur-md mt-auto"
+              >
+                <button
+                  onclick="showDashboard()"
+                  class="px-6 py-4 bg-transparent text-zinc-400 font-display font-bold text-xs uppercase tracking-widest hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-all duration-300 rounded-sm hidden sm:block"
+                >
+                  Terminer la session
+                </button>
+                <button
+                  id="nextBtn"
+                  class="group relative px-8 py-4 bg-zinc-100 text-black font-display font-bold text-xs uppercase tracking-widest hover:bg-neon hover:shadow-[0_0_30px_rgba(255,20,147,0.4)] transition-all duration-300 flex items-center gap-3 rounded-sm w-full sm:w-auto justify-center"
+                >
+                  Prospect Suivant
+                  <svg
+                    class="w-4 h-4 group-hover:translate-x-1 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    ></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Scripts / Post-its -->
+          <div class="xl:col-span-7 flex flex-col">
+            <div class="flex items-center gap-3 mb-6">
+              <div
+                class="w-8 h-8 rounded bg-neon/10 border border-neon/30 flex items-center justify-center"
+              >
+                <svg
+                  class="w-4 h-4 text-neon"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                  ></path>
+                </svg>
+              </div>
+              <h4
+                class="text-xl font-display font-bold text-white tracking-tight"
+              >
+                Modules d'Accroche
+              </h4>
+            </div>
+
+            <!-- Script Display Area (Hidden by default) -->
+            <div
+              id="scriptDisplay"
+              class="hidden mb-6 p-6 sm:p-8 bg-neon/5 border border-neon/30 rounded-sm relative shadow-[0_0_30px_rgba(255,20,147,0.05)] backdrop-blur-md"
+            >
+              <button
+                onclick="closeScript()"
+                class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded bg-black/50 text-zinc-400 hover:text-white hover:bg-neon/20 border border-white/10 hover:border-neon/50 transition-all"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
+                </svg>
+              </button>
+              <div class="flex items-center gap-3 mb-4">
+                <span class="w-2 h-2 rounded-full bg-neon animate-pulse"></span>
+                <h5
+                  id="scriptTitle"
+                  class="text-neon font-mono text-sm uppercase tracking-widest"
+                ></h5>
+              </div>
+              <p
+                id="scriptText"
+                class="text-white text-lg sm:text-xl leading-relaxed font-light italic border-l-2 border-neon/50 pl-4 py-1"
+              ></p>
+            </div>
+
+            <!-- Scripts Grid -->
+            <div
+              class="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-y-auto pr-2 custom-scrollbar"
+              style="max-height: 600px"
+              id="scriptsGrid"
+            >
+              <!-- Injected via JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vue Fin de session / Dashboard -->
+      <div id="endView" class="hidden fade-in w-full max-w-6xl mx-auto pb-20">
+        <div class="text-center mb-12">
+          <div
+            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neon/5 border border-neon/20 text-neon text-xs font-mono uppercase tracking-widest mb-6 shadow-[0_0_15px_rgba(255,20,147,0.1)]"
+          >
+            <span class="w-1.5 h-1.5 rounded-full bg-neon animate-pulse"></span>
+            Rapport de Session
+          </div>
+          <h2
+            class="text-4xl md:text-6xl font-display font-bold text-white tracking-tight mb-4"
+          >
+            Analyse des
+            <span
+              class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-400 glow-text"
+              >Performances</span
+            >
+          </h2>
+          <p class="text-zinc-400 font-light text-lg">
+            Bilan détaillé de votre session de prospection sur
+            <span id="dashboardCityName" class="text-white font-medium"></span>.
+          </p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div
+            class="bg-zinc-900/40 backdrop-blur-md border border-white/5 p-8 rounded-sm relative overflow-hidden group"
+          >
+            <div class="absolute top-0 left-0 w-full h-1 bg-zinc-800"></div>
+            <div
+              class="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-2"
+            >
+              Appels Traités
+            </div>
+            <div
+              id="statTotal"
+              class="text-5xl font-display font-bold text-white group-hover:scale-105 transition-transform origin-left"
+            >
+              0
+            </div>
+          </div>
+          <div
+            class="bg-zinc-900/40 backdrop-blur-md border border-white/5 p-8 rounded-sm relative overflow-hidden group"
+          >
+            <div
+              class="absolute top-0 left-0 w-full h-1 bg-neon/50 glow-bar"
+            ></div>
+            <div
+              class="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-2"
+            >
+              Taux de Conversion
+            </div>
+            <div
+              id="statConversion"
+              class="text-5xl font-display font-bold text-neon group-hover:scale-105 transition-transform origin-left"
+            >
+              0%
+            </div>
+          </div>
+          <div
+            class="bg-zinc-900/40 backdrop-blur-md border border-white/5 p-8 rounded-sm relative overflow-hidden group"
+          >
+            <div
+              class="absolute top-0 left-0 w-full h-1 bg-pink-500/50"
+            ></div>
+            <div
+              class="text-zinc-500 font-mono text-xs uppercase tracking-widest mb-2"
+            >
+              RDV Validés
+            </div>
+            <div
+              id="statSuccess"
+              class="text-5xl font-display font-bold text-pink-400 group-hover:scale-105 transition-transform origin-left"
+            >
+              0
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+          <!-- Chart -->
+          <div
+            class="bg-zinc-900/40 backdrop-blur-md border border-white/5 p-8 rounded-sm"
+          >
+            <h3
+              class="text-xl font-display font-bold text-white mb-6 tracking-tight"
+            >
+              Répartition des résultats
+            </h3>
+            <div class="relative h-64 w-full flex justify-center items-center">
+              <canvas id="outcomesChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Self Evaluation -->
+          <div
+            class="bg-zinc-900/40 backdrop-blur-md border border-white/5 p-8 rounded-sm flex flex-col justify-center items-center text-center relative overflow-hidden"
+          >
+            <div
+              class="absolute inset-0 bg-gradient-to-b from-transparent to-neon/5 pointer-events-none"
+            ></div>
+            <h3
+              class="text-2xl font-display font-bold text-white mb-4 tracking-tight relative z-10"
+            >
+              Auto-évaluation
+            </h3>
+            <p class="text-zinc-400 font-light mb-8 relative z-10">
+              Notez votre performance sur cette session (énergie, traitement des
+              objections, sourire au téléphone).
+            </p>
+
+            <div class="flex gap-2 mb-6 relative z-10" id="starRating">
+              <!-- Stars injected via JS -->
+            </div>
+
+            <div
+              class="text-4xl font-display font-bold text-white relative z-10"
+            >
+              <span id="ratingValue" class="text-amber-400">0</span
+              ><span class="text-zinc-600 text-2xl">/10</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <button
+            id="returnBtn"
+            class="group relative px-10 py-5 bg-white text-black font-display font-bold text-sm uppercase tracking-widest hover:bg-neon hover:shadow-[0_0_40px_rgba(255,20,147,0.4)] transition-all duration-300 rounded-sm inline-flex items-center gap-3"
+          >
+            <svg
+              class="w-5 h-5 group-hover:-translate-x-1 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              ></path>
+            </svg>
+            Nouvelle Session
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Résultat d'appel -->
+      <div
+        id="outcomeModal"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300"
+      >
+        <div
+          class="bg-zinc-950 border border-white/10 p-8 rounded-sm max-w-2xl w-full shadow-[0_0_50px_rgba(0,0,0,0.5)] transform scale-95 transition-transform duration-300"
+          id="outcomeModalContent"
+        >
+          <h2
+            class="text-3xl font-display font-bold text-white mb-2 text-center tracking-tight"
+          >
+            Résultat de l'appel
+          </h2>
+          <p class="text-zinc-400 text-center mb-8 font-light">
+            Sélectionnez l'issue de votre prospection pour
+            <span id="outcomeProspectName" class="text-neon font-medium"></span>
+          </p>
+
+          <div class="grid grid-cols-2 gap-4">
+            <button
+              onclick="handleOutcome('noAnswer')"
+              class="group p-6 bg-zinc-900/50 hover:bg-zinc-800 border border-white/5 hover:border-zinc-500 transition-all rounded-sm flex flex-col items-center gap-3"
+            >
+              <span class="text-4xl group-hover:scale-110 transition-transform"
+                >📵</span
+              >
+              <span class="text-white font-display font-bold tracking-wide"
+                >Pas de réponse</span
+              >
+            </button>
+            <button
+              onclick="handleOutcome('refused')"
+              class="group p-6 bg-red-950/20 hover:bg-red-900/40 border border-red-900/30 hover:border-red-500/50 transition-all rounded-sm flex flex-col items-center gap-3"
+            >
+              <span class="text-4xl group-hover:scale-110 transition-transform"
+                >🛑</span
+              >
+              <span class="text-white font-display font-bold tracking-wide"
+                >Refus</span
+              >
+            </button>
+            <button
+              onclick="handleOutcome('callback')"
+              class="group p-6 bg-orange-950/20 hover:bg-orange-900/40 border border-orange-900/30 hover:border-orange-500/50 transition-all rounded-sm flex flex-col items-center gap-3"
+            >
+              <span class="text-4xl group-hover:scale-110 transition-transform"
+                >⏳</span
+              >
+              <span class="text-white font-display font-bold tracking-wide"
+                >À rappeler</span
+              >
+            </button>
+            <button
+              onclick="handleOutcome('success')"
+              class="group p-6 bg-pink-950/20 hover:bg-pink-900/40 border border-pink-900/30 hover:border-pink-500/50 transition-all rounded-sm flex flex-col items-center gap-3"
+            >
+              <span class="text-4xl group-hover:scale-110 transition-transform"
+                >🎉</span
+              >
+              <span class="text-white font-display font-bold tracking-wide"
+                >RDV Validé</span
+              >
+            </button>
+          </div>
+          <div class="mt-6 text-center">
+            <button
+              onclick="closeOutcomeModal()"
+              class="text-zinc-500 hover:text-white text-sm font-mono uppercase tracking-widest transition-colors"
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const BASE_URL =
+        "https://raw.githubusercontent.com/oscarmonteur/call/main/";
+
+      // State
+      let cities = [];
+      let currentProspects = [];
+      let currentIndex = 0;
+      let currentCityName = "";
+      let sessionStats = { noAnswer: 0, refused: 0, callback: 0, success: 0 };
+      let chartInstance = null;
+      let currentRating = 0;
+      let svg, g, projection, path, zoom;
+      let selectedCityData = null;
+      let departmentsData = [];
+      let selectedDepartment = null;
+      let allGlobeData = [];
+
+      const cityCoords = {
+        amiens: { lat: 49.8941, lng: 2.2958 },
+        arras: { lat: 50.292, lng: 2.7775 },
+        berck: { lat: 50.4089, lng: 1.5922 },
+        boulogne: { lat: 50.7252, lng: 1.6133 },
+        calais: { lat: 50.9513, lng: 1.8587 },
+        cambrai: { lat: 50.176, lng: 3.2358 },
+        douai: { lat: 50.3714, lng: 3.08 },
+        dunkerque: { lat: 51.0343, lng: 2.3768 },
+        etaples: { lat: 50.5167, lng: 1.6333 },
+        fruges: { lat: 50.5153, lng: 2.1333 },
+        lille: { lat: 50.6292, lng: 3.0573 },
+        marconelle: { lat: 50.3733, lng: 2.0167 },
+        maubeuge: { lat: 50.2775, lng: 3.9731 },
+        "saint-pol-sur-ternoise": { lat: 50.38, lng: 2.3364 },
+        "saint-quentin": { lat: 49.8471, lng: 3.2874 },
+        "le touquet-paris-plage": { lat: 50.5211, lng: 1.59 },
+        valenciennes: { lat: 50.3595, lng: 3.5233 },
+        "village nord": { lat: 50.6, lng: 3.1 },
+        paris: { lat: 48.8566, lng: 2.3522 },
+        lyon: { lat: 45.764, lng: 4.8357 },
+        marseille: { lat: 43.2965, lng: 5.3698 },
+        bordeaux: { lat: 44.8378, lng: -0.5792 },
+        toulouse: { lat: 43.6047, lng: 1.4442 },
+        nantes: { lat: 47.2184, lng: -1.5536 },
+        strasbourg: { lat: 48.5734, lng: 7.7521 },
+        rennes: { lat: 48.1173, lng: -1.6778 },
+        nice: { lat: 43.7102, lng: 7.262 },
+        montpellier: { lat: 43.6108, lng: 3.8767 },
+        reims: { lat: 49.2583, lng: 4.0317 },
+        toulon: { lat: 43.1242, lng: 5.928 },
+        "saint-etienne": { lat: 45.4397, lng: 4.3872 },
+        "le havre": { lat: 49.4944, lng: 0.1079 },
+        grenoble: { lat: 45.1885, lng: 5.7245 },
+        dijon: { lat: 47.322, lng: 5.0415 },
+        angers: { lat: 47.4784, lng: -0.5532 },
+        nimes: { lat: 43.8367, lng: 4.3601 },
+        villeurbanne: { lat: 45.7667, lng: 4.8833 },
+        "saint-denis": { lat: 48.9362, lng: 2.3574 },
+        "le mans": { lat: 48.0061, lng: 0.1996 },
+        "aix-en-provence": { lat: 43.5297, lng: 5.4474 },
+        "clermont-ferrand": { lat: 45.7772, lng: 3.087 },
+        brest: { lat: 48.3904, lng: -4.4861 },
+        tours: { lat: 47.3941, lng: 0.6848 },
+        limoges: { lat: 45.8336, lng: 1.2611 },
+        annecy: { lat: 45.8992, lng: 6.1294 },
+        perpignan: { lat: 42.6976, lng: 2.8954 },
+        metz: { lat: 49.1193, lng: 6.1727 },
+        besancon: { lat: 47.2378, lng: 6.0241 },
+        orleans: { lat: 47.9029, lng: 1.9093 },
+        rouen: { lat: 49.4431, lng: 1.0993 },
+        mulhouse: { lat: 47.7508, lng: 7.3359 },
+        caen: { lat: 49.1829, lng: -0.3707 },
+        nancy: { lat: 48.6921, lng: 6.1844 },
+        roubaix: { lat: 50.6927, lng: 3.1778 },
+        tourcoing: { lat: 50.7239, lng: 3.1612 },
+        nanterre: { lat: 48.8924, lng: 2.2069 },
+        "vitry-sur-seine": { lat: 48.7876, lng: 2.3928 },
+        creteil: { lat: 48.7904, lng: 2.4556 },
+        avignon: { lat: 43.9493, lng: 4.8055 },
+        poitiers: { lat: 46.5802, lng: 0.3404 },
+        aubervilliers: { lat: 48.9128, lng: 2.38 },
+        colombes: { lat: 48.9236, lng: 2.2536 },
+        versailles: { lat: 48.8014, lng: 2.1301 },
+        courbevoie: { lat: 48.8966, lng: 2.2567 },
+        cherbourg: { lat: 49.6337, lng: -1.6221 },
+        beziers: { lat: 43.3442, lng: 3.2158 },
+        "la rochelle": { lat: 46.1603, lng: -1.1511 },
+        pau: { lat: 43.2951, lng: -0.3708 },
+        cannes: { lat: 43.5528, lng: 7.0174 },
+        ajaccio: { lat: 41.9267, lng: 8.7369 },
+        niort: { lat: 46.3237, lng: -0.4603 },
+        valence: { lat: 44.9334, lng: 4.8924 },
+        "saint-nazaire": { lat: 47.2736, lng: -2.2139 },
+        colmar: { lat: 48.0794, lng: 7.3585 },
+        quimper: { lat: 47.9975, lng: -4.0979 },
+        bourges: { lat: 47.081, lng: 2.3988 },
+        troyes: { lat: 48.2973, lng: 4.0744 },
+        chambery: { lat: 45.5646, lng: 5.9178 },
+        lorient: { lat: 47.7483, lng: -3.3618 },
+        montauban: { lat: 44.0221, lng: 1.355 },
+        beauvais: { lat: 49.4295, lng: 2.0812 },
+        cholet: { lat: 47.0592, lng: -0.8773 },
+        vannes: { lat: 47.6582, lng: -2.7608 },
+        arles: { lat: 43.6766, lng: 4.6278 },
+        belfort: { lat: 47.6397, lng: 6.8632 },
+        evreux: { lat: 49.0242, lng: 1.1508 },
+        "brive-la-gaillarde": { lat: 45.1583, lng: 1.5333 },
+        "saint-malo": { lat: 48.6481, lng: -2.0075 },
+        blois: { lat: 47.5833, lng: 1.3333 },
+        chateauroux: { lat: 46.8103, lng: 1.6911 },
+        tarbes: { lat: 43.2333, lng: 0.0833 },
+        albi: { lat: 43.9285, lng: 2.1463 },
+        carcassonne: { lat: 43.213, lng: 2.353 },
+        angouleme: { lat: 45.65, lng: 0.15 },
+        roanne: { lat: 46.0353, lng: 4.0689 },
+        auxerre: { lat: 47.7989, lng: 3.5736 },
+        nevers: { lat: 46.9933, lng: 3.1572 },
+        macon: { lat: 46.3069, lng: 4.8286 },
+        agen: { lat: 44.2049, lng: 0.6212 },
+        epinal: { lat: 48.1744, lng: 6.4512 },
+        "mont-de-marsan": { lat: 43.8902, lng: -0.4971 },
+        aurillac: { lat: 44.9261, lng: 2.4406 },
+        cahors: { lat: 44.4475, lng: 1.4428 },
+        rodez: { lat: 44.3506, lng: 2.575 },
+        auch: { lat: 43.6464, lng: 0.5853 },
+        mende: { lat: 44.5186, lng: 3.5014 },
+        foix: { lat: 42.9667, lng: 1.6 },
+        "digne-les-bains": { lat: 44.0922, lng: 6.2353 },
+        gap: { lat: 44.5594, lng: 6.0786 },
+        privas: { lat: 44.7333, lng: 4.6 },
+        gueret: { lat: 46.1667, lng: 1.8667 },
+        tulle: { lat: 45.2667, lng: 1.7667 },
+        vesoul: { lat: 47.6167, lng: 6.15 },
+        "lons-le-saunier": { lat: 46.6753, lng: 5.5547 },
+        "bar-le-duc": { lat: 48.7733, lng: 5.1614 },
+        chaumont: { lat: 48.1106, lng: 5.1406 },
+        armentieres: { lat: 50.6878, lng: 2.8814 },
+        chantilly: { lat: 49.1947, lng: 2.4672 },
+        "chateau-thierry": { lat: 49.0444, lng: 3.4031 },
+        chauny: { lat: 49.6158, lng: 3.2181 },
+        clermont: { lat: 49.3792, lng: 2.4172 },
+        compiegne: { lat: 49.4178, lng: 2.8261 },
+        creil: { lat: 49.2589, lng: 2.4747 },
+        denain: { lat: 50.3289, lng: 3.3958 },
+        doullens: { lat: 50.1572, lng: 2.3406 },
+        "friville-escarbotin": { lat: 50.0903, lng: 1.5503 },
+        guise: { lat: 49.9003, lng: 3.6281 },
+        hazebrouck: { lat: 50.7247, lng: 2.5389 },
+        hirson: { lat: 49.9222, lng: 4.0833 },
+        lambersart: { lat: 50.6497, lng: 3.0253 },
+        laon: { lat: 49.5641, lng: 3.6199 },
+        longueau: { lat: 49.8667, lng: 2.35 },
+        "marcq-en-baroeul": { lat: 50.6711, lng: 3.0814 },
+        meru: { lat: 49.2367, lng: 2.1356 },
+        montdidier: { lat: 49.6478, lng: 2.57 },
+        "nogent-sur-oise": { lat: 49.2758, lng: 2.4675 },
+        noyon: { lat: 49.5811, lng: 3.0003 },
+        peronne: { lat: 49.9322, lng: 2.9367 },
+        "pont-sainte-maxence": { lat: 49.3089, lng: 2.6044 },
+        senlis: { lat: 49.2072, lng: 2.5833 },
+        soissons: { lat: 49.3817, lng: 3.3236 },
+        tergnier: { lat: 49.6589, lng: 3.2858 },
+        "villers-cotterets": { lat: 49.2536, lng: 3.0911 },
+        vervins: { lat: 49.8347, lng: 3.9114 },
+        wattrelos: { lat: 50.7011, lng: 3.2181 },
+        "marcq-en-baroeul": { lat: 50.6711, lng: 3.0814 },
+        "marcq-en-barœul": { lat: 50.6711, lng: 3.0814 },
+        dieppe: { lat: 49.9248, lng: 1.0792 },
+        "le grand-quevilly": { lat: 49.4072, lng: 1.0525 },
+        "mont-saint-aignan": { lat: 49.4628, lng: 1.0853 },
+        elbeuf: { lat: 49.2906, lng: 1.0111 },
+        yvetot: { lat: 49.6167, lng: 0.75 },
+        fecamp: { lat: 49.7583, lng: 0.3806 },
+        "charleville-mezieres": { lat: 49.7625, lng: 4.7208 },
+        sedan: { lat: 49.7022, lng: 4.9453 },
+        rethel: { lat: 49.5103, lng: 4.3653 },
+        revin: { lat: 49.9422, lng: 4.6386 },
+        givet: { lat: 50.1367, lng: 4.8239 },
+        vouziers: { lat: 49.3978, lng: 4.6989 },
+        "bogny-sur-meuse": { lat: 49.85, lng: 4.7667 },
+        nouzonville: { lat: 49.8167, lng: 4.7458 },
+        "chalons-en-champagne": { lat: 48.9569, lng: 4.3631 },
+        epernay: { lat: 49.0431, lng: 3.9561 },
+        tinqueux: { lat: 49.25, lng: 3.9917 },
+        betheny: { lat: 49.2833, lng: 4.0583 },
+        cormontreuil: { lat: 49.2222, lng: 4.0528 },
+        fismes: { lat: 49.3072, lng: 3.6811 },
+        "sainte-menehould": { lat: 49.0922, lng: 4.8989 },
+        sezanne: { lat: 48.7236, lng: 3.7222 },
+        luneville: { lat: 48.5917, lng: 6.5014 },
+        toul: { lat: 48.675, lng: 5.8917 },
+        longwy: { lat: 49.52, lng: 5.7608 },
+        "pont-a-mousson": { lat: 48.9044, lng: 6.0544 },
+        laxou: { lat: 48.6853, lng: 6.1508 },
+        "villers-les-nancy": { lat: 48.6711, lng: 6.1522 },
+        "saint-max": { lat: 48.7008, lng: 6.2069 },
+        jarny: { lat: 49.1583, lng: 5.8764 },
+      };
+
+      function getCityCoords(name) {
+        const key = name
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+        if (cityCoords[key]) return cityCoords[key];
+        // Fallback: Random coordinates within France (roughly lat 43 to 50, lng -4 to 7)
+        return { lat: 43 + Math.random() * 7, lng: -4 + Math.random() * 11 };
+      }
+
+      // DOM Elements
+      const views = {
+        home: document.getElementById("homeView"),
+        cities: document.getElementById("citiesView"),
+        prospect: document.getElementById("prospectView"),
+        end: document.getElementById("endView"),
+      };
+
+      const citiesGrid = document.getElementById("citiesGrid");
+      const loadingCities = document.getElementById("loadingCities");
+
+      const prospectCard = document.getElementById("prospectCard");
+      const loadingProspects = document.getElementById("loadingProspects");
+
+      const pName = document.getElementById("pName");
+      const pActivity = document.getElementById("pActivity");
+      const pAddress = document.getElementById("pAddress");
+      const pPhone = document.getElementById("pPhone");
+
+      const cityNameBadge = document.getElementById("cityNameBadge");
+      const progressCount = document.getElementById("progressCount");
+      const progressText = document.getElementById("progressText");
+      const progressBar = document.getElementById("progressBar");
+
+      const startBtn = document.getElementById("startBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const backBtn = document.getElementById("backBtn");
+      const returnBtn = document.getElementById("returnBtn");
+
+      const scriptsGrid = document.getElementById("scriptsGrid");
+      const scriptDisplay = document.getElementById("scriptDisplay");
+      const scriptTitle = document.getElementById("scriptTitle");
+      const scriptText = document.getElementById("scriptText");
+
+      const prospectScripts = [
+        {
+          title: "INSPECTEUR",
+          text: "Bonjour c’est Léo l’inspecteur au bureau des fraudes , j’ai vue votre nom apparaitre sur mon bureau ce matin et honnêtement la situation est un peu délicate monsieur, j’avais une question pour vous qui va permettre d’éclairecire tout ça, vous ne trouvez pas ça criminel qu’une entreprise comme la votre qui fait un si bon travail n’est pas de site web en 2026 ?",
+        },
+        {
+          title: "10 SEC",
+          text: "Bonjour si je vous dis que c’est un appel de prospection est-ce que vous me laisser 10 seconde pour expliquer ou vous jettez votre téléphone par la fenêtre ?",
+        },
+        {
+          title: "MACRON",
+          text: "Bonjours je me posais une question sur votre entreprise , comment une entreprise comme la votre dans la france à Macron peut survivre sans site web ?",
+        },
+        {
+          title: "INSOLENT",
+          text: "Bon je vais pas passez par 4 chemin, je veux le patron. Vous êtes le patron ? Ok vos Goyer j’aimerai bien mettre ma mains dans votre poche et vous prendre de l’argent sauf que ça fonctionne pas comme ça faut que je t’apporte de la valeur donc je me suis permit de vous crée un site web et si vous avez 5 minutes pour le voir dans la journée on peut s’appeler ?",
+        },
+        {
+          title: "PIZZA",
+          text: "Bonjour je voudrais une margaritta, vous faite la livraison d’ailleurs ou pas ? Je sais bien je vous fait marcher, si je vous dis que c’est un appel de prospection est-ce que vous me laisser 10 seconde ou vous mettez le téléphone par la fenêtre ?",
+        },
+        {
+          title: "CLIENT SAD",
+          text: "Bonjour, j'aimerais pousser un énorme coup de gueule... Non, je plaisante, détendez-vous, je ne suis pas un client fâché. Pire : je suis un commercial qui fait de la prospection. Est-ce que ce petit ascenseur émotionnel me donne le droit à 10 secondes de votre temps, ou je peux raccrocher ?",
+        },
+        {
+          title: "AFRICAIN",
+          text: "Bonjour c’est pour les panneau solaire; Je plaisante, rassurez-vous tout de suite. Par contre, ça reste un appel de prospection. Vous me laissez 10 secondes pour me faire pardonner cette frayeur ou vous m'envoyez balader ?",
+        },
+        {
+          title: "URSAFF",
+          text: "Bonjour, c'est l'URSSAF... Respirez, respirez, détendez-vous, c'est une blague ! Je sais, elle est cruelle. En vrai, c'est \"juste\" un commercial qui fait de la prospection pour des sites web. Avec l'arrêt cardiaque que je viens de vous éviter, vous me laissez 10 secondes pour me rattraper ou vous portez plainte ?",
+        },
+        {
+          title: "RADIO",
+          text: "Musique skyrock : Bonjour pour tenter de gagner un cadeaux de 1000 euros, quel est votre radio préféré ? Non c’est la mauvaise réponse, si je vous dis que c’est un appel de prospection est-ce que vous me laisser 10 seconde pour expliquer ou vous jettez votre téléphone par la fenêtre ?",
+        },
+      ];
+
+      function renderScripts() {
+        scriptsGrid.innerHTML = prospectScripts
+          .map(
+            (script, index) => `
+                <button onclick="showScript(${index})" class="group relative p-4 bg-zinc-900/60 backdrop-blur-sm border border-white/5 hover:border-neon/50 hover:bg-neon/5 transition-all duration-300 rounded-sm text-left flex flex-col items-start justify-center min-h-[80px] overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <span class="text-neon/70 font-mono text-xs mb-1 group-hover:text-neon transition-colors">#${String(index + 1).padStart(2, "0")}</span>
+                    <span class="text-white font-display font-bold text-sm sm:text-base tracking-tight group-hover:translate-x-1 transition-transform relative z-10">${script.title}</span>
+                </button>
+            `,
+          )
+          .join("");
+      }
+
+      window.showScript = function (index) {
+        const script = prospectScripts[index];
+        scriptTitle.textContent = script.title;
+        scriptText.textContent = script.text;
+        scriptDisplay.classList.remove("hidden");
+
+        // Re-trigger animation
+        scriptDisplay.classList.remove("fade-in");
+        void scriptDisplay.offsetWidth;
+        scriptDisplay.classList.add("fade-in");
+      };
+
+      window.closeScript = function () {
+        scriptDisplay.classList.add("hidden");
+        scriptDisplay.classList.remove("fade-in");
+      };
+
+      // Initialization
+      async function init() {
+        renderScripts();
+        try {
+          const [citiesRes, deptsRes] = await Promise.all([
+            fetch(BASE_URL + "villes.json"),
+            fetch(
+              "https://raw.githubusercontent.com/gregoiredavid/france-geojson/master/departements.geojson",
+            ),
+          ]);
+
+          if (!citiesRes.ok || !deptsRes.ok) throw new Error("Erreur réseau");
+
+          cities = await citiesRes.json();
+          const deptsGeoJson = await deptsRes.json();
+          departmentsData = deptsGeoJson.features;
+
+          renderCities();
+        } catch (error) {
+          console.error("Erreur lors du chargement des données:", error);
+          loadingCities.innerHTML =
+            '<p class="text-red-500 font-mono text-sm">Erreur de connexion à la base de données.</p>';
+        }
+      }
+
+      // Render Cities Grid -> Init Map
+      function renderCities() {
+        loadingCities.classList.add("hidden");
+
+        const container = document.getElementById("globeViz");
+        if (container.innerHTML !== "") return; // Already initialized
+
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+
+        projection = d3
+          .geoConicConformal()
+          .center([2.454071, 46.279229])
+          .scale(width * 3.5)
+          .translate([width / 2, height / 2]);
+
+        path = d3.geoPath().projection(projection);
+
+        svg = d3
+          .select("#globeViz")
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height)
+          .style("background", "transparent");
+
+        g = svg.append("g");
+
+        zoom = d3
+          .zoom()
+          .scaleExtent([1, 20])
+          .on("zoom", (event) => {
+            g.attr("transform", event.transform);
+            // Keep squares same size regardless of zoom
+            g.selectAll(".city-point")
+              .attr("width", 6 / event.transform.k)
+              .attr("height", 6 / event.transform.k)
+              .attr(
+                "x",
+                (d) => projection([d.lng, d.lat])[0] - 3 / event.transform.k,
+              )
+              .attr(
+                "y",
+                (d) => projection([d.lng, d.lat])[1] - 3 / event.transform.k,
+              );
+          });
+
+        svg.call(zoom);
+
+        // Draw departments
+        g.selectAll("path")
+          .data(departmentsData)
+          .enter()
+          .append("path")
+          .attr("d", path)
+          .attr("fill", "rgba(255, 20, 147, 0.05)")
+          .attr("stroke", "#ff1493")
+          .attr("stroke-width", 0.5)
+          .attr(
+            "class",
+            "department cursor-pointer transition-colors duration-300",
+          )
+          .on("mouseover", function (event, d) {
+            if (selectedDepartment !== d) {
+              d3.select(this).attr("fill", "rgba(255, 20, 147, 0.2)");
+            }
+
+            // Show tooltip
+            let tt = document.getElementById("deptTooltip");
+            if (!tt) {
+              tt = document.createElement("div");
+              tt.id = "deptTooltip";
+              tt.className =
+                "absolute pointer-events-none bg-black/80 backdrop-blur-sm border border-neon/30 px-3 py-2 rounded-sm text-white font-mono text-xs uppercase tracking-widest shadow-[0_0_15px_rgba(255,20,147,0.2)] z-50";
+              document.body.appendChild(tt);
+            }
+            tt.innerHTML = `${d.properties.nom} (${d.properties.code})`;
+            tt.style.left = event.pageX + 15 + "px";
+            tt.style.top = event.pageY + 15 + "px";
+            tt.style.display = "block";
+          })
+          .on("mousemove", function (event) {
+            const tt = document.getElementById("deptTooltip");
+            if (tt) {
+              tt.style.left = event.pageX + 15 + "px";
+              tt.style.top = event.pageY + 15 + "px";
+            }
+          })
+          .on("mouseout", function (event, d) {
+            if (selectedDepartment !== d) {
+              d3.select(this).attr("fill", "rgba(255, 20, 147, 0.05)");
+            }
+            const tt = document.getElementById("deptTooltip");
+            if (tt) tt.style.display = "none";
+          })
+          .on("click", handleDepartmentClick);
+
+        allGlobeData = cities.map((city) => {
+          const coords = getCityCoords(city.name);
+          return {
+            ...city,
+            lat: coords.lat,
+            lng: coords.lng,
+          };
+        });
+
+        drawCities(allGlobeData);
+
+        // Click on background to reset
+        svg.on("click", (event) => {
+          if (event.target.tagName === "svg") {
+            resetMap();
+          }
+        });
+
+        window.addEventListener("resize", () => {
+          if (views.cities.classList.contains("hidden")) return;
+          const newWidth = container.clientWidth;
+          const newHeight = container.clientHeight;
+          svg.attr("width", newWidth).attr("height", newHeight);
+          projection
+            .translate([newWidth / 2, newHeight / 2])
+            .scale(newWidth * 3.5);
+          g.selectAll("path").attr("d", path);
+          updateCityPositions();
+        });
+      }
+
+      function updateCityPositions() {
+        const currentZoom = d3.zoomTransform(svg.node()).k;
+        g.selectAll(".city-point")
+          .attr("x", (d) => projection([d.lng, d.lat])[0] - 3 / currentZoom)
+          .attr("y", (d) => projection([d.lng, d.lat])[1] - 3 / currentZoom);
+      }
+
+      function drawCities(citiesData) {
+        const cityPoints = g
+          .selectAll(".city-point")
+          .data(citiesData, (d) => d.name);
+
+        cityPoints.exit().remove();
+
+        const currentZoom = svg ? d3.zoomTransform(svg.node()).k : 1;
+
+        cityPoints
+          .enter()
+          .append("rect")
+          .attr("class", "city-point cursor-pointer")
+          .attr("width", 6 / currentZoom)
+          .attr("height", 6 / currentZoom)
+          .attr("fill", "#ff1493")
+          .attr("x", (d) => projection([d.lng, d.lat])[0] - 3 / currentZoom)
+          .attr("y", (d) => projection([d.lng, d.lat])[1] - 3 / currentZoom)
+          .on("click", (event, d) => {
+            event.stopPropagation();
+            handleCityClick(d);
+          })
+          .on("mouseover", function () {
+            const currentZoom = d3.zoomTransform(svg.node()).k;
+            d3.select(this)
+              .attr("fill", "#fff")
+              .attr("width", 10 / currentZoom)
+              .attr("height", 10 / currentZoom)
+              .attr("x", (d) => projection([d.lng, d.lat])[0] - 5 / currentZoom)
+              .attr(
+                "y",
+                (d) => projection([d.lng, d.lat])[1] - 5 / currentZoom,
+              );
+          })
+          .on("mouseout", function () {
+            const currentZoom = d3.zoomTransform(svg.node()).k;
+            d3.select(this)
+              .attr("fill", "#ff1493")
+              .attr("width", 6 / currentZoom)
+              .attr("height", 6 / currentZoom)
+              .attr("x", (d) => projection([d.lng, d.lat])[0] - 3 / currentZoom)
+              .attr(
+                "y",
+                (d) => projection([d.lng, d.lat])[1] - 3 / currentZoom,
+              );
+          });
+      }
+
+      const handleDepartmentClick = (event, polygon) => {
+        // Hide city selection panel if open
+        document
+          .getElementById("citySelectionPanel")
+          .classList.add("translate-y-[150%]", "opacity-0");
+
+        if (selectedDepartment === polygon) {
+          resetMap();
+          return;
+        }
+
+        selectedDepartment = polygon;
+
+        // Highlight selected
+        g.selectAll(".department").attr("fill", (d) =>
+          d === polygon ? "rgba(255, 20, 147, 0.3)" : "rgba(255, 20, 147, 0.05)",
+        );
+
+        // Filter cities
+        const filteredCities = allGlobeData.filter((city) => {
+          return d3.geoContains(polygon, [city.lng, city.lat]);
+        });
+
+        drawCities(filteredCities);
+
+        // Zoom to department
+        const container = document.getElementById("globeViz");
+        const bounds = path.bounds(polygon);
+        const dx = bounds[1][0] - bounds[0][0];
+        const dy = bounds[1][1] - bounds[0][1];
+        const x = (bounds[0][0] + bounds[1][0]) / 2;
+        const y = (bounds[0][1] + bounds[1][1]) / 2;
+        const scale = Math.max(
+          1,
+          Math.min(
+            15,
+            0.8 /
+              Math.max(dx / container.clientWidth, dy / container.clientHeight),
+          ),
+        );
+        const translate = [
+          container.clientWidth / 2 - scale * x,
+          container.clientHeight / 2 - scale * y,
+        ];
+
+        svg
+          .transition()
+          .duration(750)
+          .call(
+            zoom.transform,
+            d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale),
+          );
+      };
+
+      const handleCityClick = (d) => {
+        selectedCityData = d;
+        const panel = document.getElementById("citySelectionPanel");
+        document.getElementById("selectedCityName").textContent = d.name;
+        document.getElementById("selectedCityProspects").textContent =
+          `${d.potentialClients || "Plusieurs"} prospects détectés`;
+        panel.classList.remove("translate-y-[150%]", "opacity-0");
+
+        // Zoom to city
+        const container = document.getElementById("globeViz");
+        const [x, y] = projection([d.lng, d.lat]);
+        const scale = 15; // Max zoom
+        const translate = [
+          container.clientWidth / 2 - scale * x,
+          container.clientHeight / 2 - scale * y,
+        ];
+
+        svg
+          .transition()
+          .duration(750)
+          .call(
+            zoom.transform,
+            d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale),
+          );
+      };
+
+      const resetMap = () => {
+        selectedDepartment = null;
+        g.selectAll(".department").attr("fill", "rgba(255, 20, 147, 0.05)");
+        drawCities(allGlobeData);
+        document
+          .getElementById("citySelectionPanel")
+          .classList.add("translate-y-[150%]", "opacity-0");
+
+        svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
+      };
+
+      document
+        .getElementById("startMissionBtn")
+        .addEventListener("click", () => {
+          if (!selectedCityData) return;
+
+          const panel = document.getElementById("citySelectionPanel");
+          panel.classList.add("translate-y-[150%]", "opacity-0");
+
+          const overlay = document.getElementById("missionOverlay");
+          overlay.classList.add("active");
+
+          setTimeout(() => {
+            overlay.classList.remove("active");
+            selectCity(selectedCityData.file, selectedCityData.name);
+          }, 2500);
+        });
+
+      // Select a City and Load CSV
+      window.selectCity = async function (filePath, cityName) {
+        currentCityName = cityName;
+        sessionStats = { noAnswer: 0, refused: 0, callback: 0, success: 0 };
+        showView("prospect");
+        backBtn.classList.remove("hidden");
+
+        prospectCard.classList.add("hidden");
+        loadingProspects.classList.remove("hidden");
+
+        // Reset progress bar visually before loading
+        progressBar.style.width = "0%";
+        progressText.textContent = "0%";
+        progressCount.textContent = "0 / 0";
+
+        try {
+          const response = await fetch(BASE_URL + filePath);
+          if (!response.ok) throw new Error("Erreur réseau");
+          const csvText = await response.text();
+          parseCSV(csvText);
+
+          currentIndex = 0;
+          renderProspect();
+        } catch (error) {
+          console.error("Erreur lors du chargement des prospects:", error);
+          loadingProspects.innerHTML =
+            '<p class="text-red-500 font-mono text-sm">Échec de l\'extraction des données.</p>';
+        }
+      };
+
+      // Parse CSV Data
+      function parseCSV(csvText) {
+        const lines = csvText
+          .split(/\r?\n/)
+          .filter((line) => line.trim() !== "");
+        // Skip header (first line)
+        currentProspects = lines
+          .slice(1)
+          .map((line) => {
+            const [nom, activite, adresse, telephone] = line.split(";");
+            return {
+              nom: nom?.trim() || "Non renseigné",
+              activite: activite?.trim() || "Non renseigné",
+              adresse: adresse?.trim() || "Non renseigné",
+              telephone: telephone?.trim() || "Non renseigné",
+            };
+          })
+          .filter((p) => p.nom !== "Non renseigné"); // Filter out empty rows
+      }
+
+      // Render Current Prospect
+      function renderProspect() {
+        if (currentIndex >= currentProspects.length) {
+          showDashboard();
+          return;
+        }
+
+        loadingProspects.classList.add("hidden");
+        prospectCard.classList.remove("hidden");
+
+        // Re-trigger animation
+        prospectCard.classList.remove("fade-in");
+        void prospectCard.offsetWidth; // trigger reflow
+        prospectCard.classList.add("fade-in");
+
+        const prospect = currentProspects[currentIndex];
+        const currentNumber = currentIndex + 1;
+        const total = currentProspects.length;
+
+        // Update Progress Bar
+        const percentage = Math.round((currentNumber / total) * 100);
+        progressBar.style.width = `${percentage}%`;
+        progressText.textContent = `${percentage}%`;
+        progressCount.textContent = `${currentNumber} / ${total}`;
+        cityNameBadge.textContent = currentCityName;
+
+        // Update Prospect Data
+        pName.textContent = prospect.nom;
+        pActivity.textContent = prospect.activite;
+
+        // Address with Google Maps link
+        pAddress.textContent = prospect.adresse;
+        pAddress.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(prospect.adresse)}`;
+
+        // Phone
+        pPhone.textContent = prospect.telephone;
+        const cleanPhone = prospect.telephone.replace(/\s+/g, "");
+        pPhone.href = `tel:${cleanPhone}`;
+      }
+
+      // View Navigation
+      function showView(viewName) {
+        Object.values(views).forEach((v) => v.classList.add("hidden"));
+        views[viewName].classList.remove("hidden");
+        window.scrollTo(0, 0);
+
+        if (viewName === "cities" && svg) {
+          // Reset panel
+          document
+            .getElementById("citySelectionPanel")
+            .classList.add("translate-y-[150%]", "opacity-0");
+
+          setTimeout(() => {
+            const container = document.getElementById("globeViz");
+            const newWidth = container.clientWidth;
+            const newHeight = container.clientHeight;
+            svg.attr("width", newWidth).attr("height", newHeight);
+            projection
+              .translate([newWidth / 2, newHeight / 2])
+              .scale(newWidth * 3);
+            g.selectAll("path").attr("d", path);
+            updateCityPositions();
+          }, 50);
+        }
+      }
+
+      // Event Listeners
+      startBtn.addEventListener("click", () => {
+        showView("cities");
+      });
+
+      nextBtn.addEventListener("click", () => {
+        document.getElementById("outcomeProspectName").textContent =
+          currentProspects[currentIndex].nom;
+        const modal = document.getElementById("outcomeModal");
+        const content = document.getElementById("outcomeModalContent");
+        modal.classList.remove("hidden");
+        setTimeout(() => {
+          modal.classList.remove("opacity-0");
+          content.classList.remove("scale-95");
+        }, 10);
+      });
+
+      window.closeOutcomeModal = function () {
+        const modal = document.getElementById("outcomeModal");
+        const content = document.getElementById("outcomeModalContent");
+        modal.classList.add("opacity-0");
+        content.classList.add("scale-95");
+        setTimeout(() => {
+          modal.classList.add("hidden");
+        }, 300);
+      };
+
+      window.handleOutcome = function (type) {
+        sessionStats[type]++;
+        closeOutcomeModal();
+        currentIndex++;
+        renderProspect();
+      };
+
+      window.showDashboard = function () {
+        showView("end");
+        backBtn.classList.add("hidden");
+        document.getElementById("dashboardCityName").textContent =
+          currentCityName;
+
+        const total =
+          sessionStats.noAnswer +
+          sessionStats.refused +
+          sessionStats.callback +
+          sessionStats.success;
+        const conversion =
+          total > 0 ? Math.round((sessionStats.success / total) * 100) : 0;
+
+        document.getElementById("statTotal").textContent = total;
+        document.getElementById("statConversion").textContent =
+          conversion + "%";
+        document.getElementById("statSuccess").textContent =
+          sessionStats.success;
+
+        renderChart();
+        setupRating();
+      };
+
+      function renderChart() {
+        const ctx = document.getElementById("outcomesChart").getContext("2d");
+        if (chartInstance) chartInstance.destroy();
+
+        chartInstance = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: ["Pas de réponse", "Refus", "À rappeler", "RDV Validé"],
+            datasets: [
+              {
+                data: [
+                  sessionStats.noAnswer,
+                  sessionStats.refused,
+                  sessionStats.callback,
+                  sessionStats.success,
+                ],
+                backgroundColor: ["#3f3f46", "#ef4444", "#f97316", "#10b981"],
+                borderWidth: 0,
+                hoverOffset: 10,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "right",
+                labels: {
+                  color: "#a1a1aa",
+                  font: { family: "'Space Grotesk', sans-serif", size: 14 },
+                },
+              },
+            },
+            cutout: "75%",
+          },
+        });
+      }
+
+      function setupRating() {
+        const container = document.getElementById("starRating");
+        container.innerHTML = "";
+        currentRating = 0;
+        document.getElementById("ratingValue").textContent = "0";
+
+        for (let i = 1; i <= 10; i++) {
+          const star = document.createElement("button");
+          star.innerHTML =
+            '<svg class="w-8 h-8 transition-all duration-200" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>';
+          star.className =
+            "text-zinc-700 hover:text-amber-400 hover:scale-110 transition-all focus:outline-none";
+          star.onclick = () => setRating(i);
+          star.onmouseover = () => highlightStars(i);
+          star.onmouseout = () => highlightStars(currentRating);
+          container.appendChild(star);
+        }
+      }
+
+      function highlightStars(count) {
+        const stars = document.getElementById("starRating").children;
+        for (let i = 0; i < 10; i++) {
+          if (i < count) {
+            stars[i].classList.remove("text-zinc-700");
+            stars[i].classList.add(
+              "text-amber-400",
+              "drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
+            );
+          } else {
+            stars[i].classList.remove(
+              "text-amber-400",
+              "drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
+            );
+            stars[i].classList.add("text-zinc-700");
+          }
+        }
+      }
+
+      window.setRating = function (count) {
+        currentRating = count;
+        document.getElementById("ratingValue").textContent = count;
+        highlightStars(count);
+      };
+
+      window.goHome = () => {
+        showView("home");
+        backBtn.classList.add("hidden");
+      };
+
+      backBtn.addEventListener("click", () => {
+        showView("cities");
+        backBtn.classList.add("hidden");
+      });
+
+      returnBtn.addEventListener("click", () => {
+        showView("cities");
+        backBtn.classList.add("hidden");
+      });
+
+      // Start
+      init();
+    </script>
+  </body>
+</html>
