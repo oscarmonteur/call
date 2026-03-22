@@ -1,0 +1,120 @@
+Nom;Activité;Adresse;Téléphone
+Le Fournil de la Cathédrale;Boulangerie;Rue Saint-Romain, 76000 Rouen;02 35 71 11 22
+Boucherie du Vieux Marché;Boucherie;Place du Vieux Marché, 76000 Rouen;02 35 70 44 55
+Boulangerie Patisserie Lefebvre;Boulangerie;45 Rue Jeanne d'Arc, 76000 Rouen;02 35 71 55 88
+Au Pain de Rouen;Boulangerie;80 Rue de la République, 76000 Rouen;02 35 07 33 44
+Boucherie Centrale Rouen;Boucherie;25 Rue de l'Hôpital, 76000 Rouen;02 35 71 22 77
+Fleurs de Rouen;Fleuriste;110 Rue Saint-Hilaire, 76000 Rouen;02 35 89 55 22
+L'Orchidée Blanche;Fleuriste;Place de l'Hôtel de Ville, 76000 Rouen;02 35 71 11 66
+Garage de la Gare Rouen;Garage Automobile;Avenue Champlain, 76000 Rouen;02 35 63 33 55
+Meca Rouen Service;Garage Automobile;Rue Saint-Lazare, 76000 Rouen;02 35 70 66 22
+Plomberie Rouennaise;Plombier;76000 Rouen;02 35 71 11 44
+Chauffage Seine Service;Chauffagiste;76000 Rouen;02 35 62 55 99
+Artisan Plombier du Centre;Plombier;76000 Rouen;06 11 22 33 44
+Électricité Générale Rouen;Électricien;76000 Rouen;02 35 71 88 11
+Coiffure Style Rouen;Coiffeur;30 Rue de la République, 76000 Rouen;02 35 70 22 44
+Salon Espace Coiffure;Coiffeur;115 Rue Jeanne d'Arc, 76000 Rouen;02 35 71 77 66
+Institut Beauté Douceur;Institut de Beauté;55 Avenue de Caen, 76100 Rouen;02 35 72 33 11
+Cordonnerie de l'Hôtel de Ville;Cordonnier;90 Rue de la République, 76000 Rouen;02 35 71 66 88
+Pressing du Centre;Pressing;Place de la Pucelle, 76000 Rouen;02 35 71 99 44
+Laverie Rouennaise;Pressing;Rue Saint-Sever, 76100 Rouen;02 35 72 11 77
+Friterie du Vieux Marché;Friterie;Place du Vieux Marché, 76000 Rouen;02 35 71 44 33
+Menuiserie Rouennaise;Menuisier;76000 Rouen;02 35 71 77 22
+Peinture Déco Rouen;Peintre;76000 Rouen;02 35 70 66 44
+Toiture de la Seine;Couvreur;76000 Rouen;02 35 71 99 55
+Taxi Rouen Pro;Taxi;76000 Rouen;02 35 88 88 88
+Pompes Funèbres Générales Rouen;Pompes Funèbres;76000 Rouen;02 35 71 10 10
+Boulangerie du Marché;Boulangerie;Place Voltaire, 76300 Sotteville-lès-Rouen;02 35 72 11 22
+Boucherie Sottevillaise;Boucherie;Rue de la République, 76300 Sotteville-lès-Rouen;02 35 72 55 88
+Garage de la Place;Garage Automobile;Place de l'Hôtel de Ville, 76300 Sotteville-lès-Rouen;02 35 72 88 44
+Coiffure de Sotteville;Coiffeur;Rue Raspail, 76300 Sotteville-lès-Rouen;02 35 72 33 11
+Plomberie Sottevillaise;Plombier;76300 Sotteville-lès-Rouen;02 35 72 66 55
+Boulangerie de Saint-Étienne;Boulangerie;Rue de la République, 76800 Saint-Étienne-du-Rouvray;02 35 65 11 22
+Boucherie Stéphanaise;Boucherie;Avenue de l'Hôtel de Ville, 76800 Saint-Étienne-du-Rouvray;02 35 65 55 88
+Garage du Madrillet;Garage Automobile;Avenue du Madrillet, 76800 Saint-Étienne-du-Rouvray;02 35 65 88 44
+Coiffure de l'Hôtel de Ville;Coiffeur;Saint-Étienne-du-Rouvray;02 35 65 33 11
+Boulangerie du Petit-Quevilly;Boulangerie;Rue de la République, 76140 Le Petit-Quevilly;02 35 72 11 33
+Boucherie Quevillaise;Boucherie;Place de la Mairie, 76140 Le Petit-Quevilly;02 35 72 55 66
+Garage du Petit-Quevilly;Garage Automobile;Avenue Jean Jaurès, 76140 Le Petit-Quevilly;02 35 72 88 22
+Boulangerie du Grand-Quevilly;Boulangerie;Avenue des Provinces, 76120 Le Grand-Quevilly;02 35 67 11 44
+Boucherie des Provinces;Boucherie;Rue de la République, 76120 Le Grand-Quevilly;02 35 67 55 88
+Garage du Grand-Quevilly;Garage Automobile;Route de Dieppe, 76120 Le Grand-Quevilly;02 35 67 88 22
+Coiffure des Provinces;Coiffeur;Le Grand-Quevilly;02 35 67 33 99
+Boulangerie du Village;Boulangerie;Rue de l'Église, 76130 Mont-Saint-Aignan;02 35 71 11 22
+Boucherie de Mont-Saint-Aignan;Boucherie;Avenue de la Maison Blanche, 76130 Mont-Saint-Aignan;02 35 71 55 88
+Garage de l'Université;Garage Automobile;Route d'Houppeville, 76130 Mont-Saint-Aignan;02 35 71 88 44
+Coiffure du Village;Coiffeur;Rue de l'Église, 76130 Mont-Saint-Aignan;02 35 71 33 11
+Boulangerie de Bois-Guillaume;Boulangerie;Place de la Mairie, 76230 Bois-Guillaume;02 35 60 11 33
+Boucherie de Bois-Guillaume;Boucherie;Rue de la République, 76230 Bois-Guillaume;02 35 60 55 66
+Garage de la Bretèque;Garage Automobile;Route de Neufchâtel, 76230 Bois-Guillaume;02 35 60 88 22
+Coiffure de la Mairie;Coiffeur;Bois-Guillaume;02 35 60 77 11
+Boulangerie de Maromme;Boulangerie;Place Jean Jaurès, 76150 Maromme;02 35 74 11 22
+Boucherie de Maromme;Boucherie;Rue de la République, 76150 Maromme;02 35 74 55 88
+Garage de Maromme;Garage Automobile;Route de Dieppe, 76150 Maromme;02 35 74 88 44
+Coiffure de Maromme;Coiffeur;Maromme;02 35 74 33 11
+Boulangerie de Déville;Boulangerie;Route de Dieppe, 76250 Déville-lès-Rouen;02 35 74 11 33
+Boucherie de Déville;Boucherie;Rue de la République, 76250 Déville-lès-Rouen;02 35 74 55 66
+Garage de Déville;Garage Automobile;Déville-lès-Rouen;02 35 74 88 22
+Boulangerie de Darnétal;Boulangerie;Rue de la Chaîne, 76160 Darnétal;02 35 08 11 44
+Boucherie de Darnétal;Boucherie;Rue Sadi Carnot, 76160 Darnétal;02 35 08 55 88
+Garage de Darnétal;Garage Automobile;Route de Lyons, 76160 Darnétal;02 35 08 88 22
+Coiffure de Darnétal;Coiffeur;Darnétal;02 35 08 33 99
+Boulangerie de Bonsecours;Boulangerie;Avenue du Maréchal Foch, 76240 Bonsecours;02 35 80 11 22
+Boucherie de Bonsecours;Boucherie;Place de la Mairie, 76240 Bonsecours;02 35 80 55 88
+Garage de Bonsecours;Garage Automobile;Route de Paris, 76240 Bonsecours;02 35 80 88 44
+Optique Rouennais;Opticien;Rue Jeanne d'Arc, 76000 Rouen;02 35 71 22 55
+Pharmacie du Vieux Marché;Pharmacie;Place du Vieux Marché, 76000 Rouen;02 35 71 33 22
+Pharmacie de Sotteville;Pharmacie;Place Voltaire, 76300 Sotteville;02 35 72 33 88
+Pharmacie de Mont-Saint-Aignan;Pharmacie;Place Colbert, 76130 Mont-Saint-Aignan;02 35 71 11 33
+Institut Océane Rouen;Institut de Beauté;Avenue de Bretagne, 76100 Rouen;02 35 72 12 34
+Salon Création Coiffure;Coiffeur;Rue Saint-Sever, 76100 Rouen;02 35 72 78 90
+Cordonnerie de la Mairie;Cordonnier;Rue de la République, 76000 Rouen;02 35 71 56 78
+Pressing Rouen Pro;Pressing;Rue Jeanne d'Arc, 76000 Rouen;02 35 71 90 12
+Mercerie Rouennaise;Mercerie;Rue Saint-Lo, 76000 Rouen;02 35 71 55 77
+Retouche Rouen;Couturier;Rue de la République, 76000 Rouen;02 35 71 88 44
+Antiquités du Vieux Rouen;Antiquaire;Rue Damiette, 76000 Rouen;02 35 71 33 66
+Librairie de la Mairie;Librairie;Place de l'Hôtel de Ville, 76000 Rouen;02 35 71 22 33
+Dépannage Élec Rouen;Électricien;76000 Rouen;06 11 33 44 55
+Chauffage Normandie Pro;Chauffagiste;76120 Le Grand-Quevilly;02 35 67 11 11
+Toiture Rouen Pro;Couvreur;76000 Rouen;02 35 71 11 11
+Peintre Rouennais;Peintre;76130 Mont-Saint-Aignan;02 35 71 11 11
+Menuiserie du secteur;Menuisier;76230 Bois-Guillaume;02 35 60 11 11
+Poissonnerie du Marché;Poissonnerie;Place du Vieux Marché, 76000 Rouen;02 35 71 11 11
+Taxi de Sotteville;Taxi;76300 Sotteville;02 35 72 20 20
+Taxi de Mont-Saint-Aignan;Taxi;76130 Mont-Saint-Aignan;02 35 71 20 30
+Ambulances de la Seine;Ambulance;76000 Rouen;02 35 72 88 88
+PFG Sotteville;Pompes Funèbres;76300 Sotteville;02 35 72 10 10
+PFG Grand-Quevilly;Pompes Funèbres;76120 Grand-Quevilly;02 35 67 10 11
+Café des Sports Maromme;Bar;76150 Maromme;02 35 74 22 11
+Brasserie de la Mairie Bonsecours;Brasserie;76240 Bonsecours;02 35 80 77 44
+Coiffure de Bihorel;Coiffeur;76420 Bihorel;02 35 60 90 12
+Boucherie de Bihorel;Boucherie;76420 Bihorel;02 35 60 34 56
+Le Relais Rouennais;Restaurant;Rouen;02 35 71 44 55
+L'Estaminet Rouennais;Restaurant;Rouen;02 35 70 66 77
+Friterie de la Cathédrale;Friterie;Rouen;02 35 71 90 12
+Au Bon Accueil Sotteville;Restaurant;Sotteville;02 35 72 11 11
+Garage Saint-Sever;Garage Automobile;Rue Saint-Sever, 76100 Rouen;02 35 72 45 67
+Boulangerie Grieu;Boulangerie;Quartier Grieu, 76000 Rouen;02 35 70 12 34
+Boucherie du Châtelet;Boucherie;Quartier Châtelet, 76000 Rouen;02 35 07 45 67
+Fleuriste de la Rive Gauche;Fleuriste;Avenue de Bretagne, 76100 Rouen;02 35 72 90 11
+Plomberie Normandie;Plombier;76250 Déville;02 35 74 12 34
+Garage de l'Europe;Garage Automobile;76100 Rouen;02 35 72 11 22
+Salon de Coiffure Homme;Coiffeur;Rue Lafayette, 76100 Rouen;02 35 72 33 44
+Pharmacie de la Mairie;Pharmacie;76140 Le Petit-Quevilly;02 35 72 55 66
+Garage Quevillais;Garage Automobile;76140 Le Petit-Quevilly;02 35 72 77 88
+Boucherie des Provinces;Boucherie;76120 Le Grand-Quevilly;02 35 67 99 00
+Pneus Rouen Service;Garage;76100 Rouen;02 35 72 88 99
+Menuiserie du Madrillet;Menuisier;76800 St-Étienne;02 35 65 11 11
+Electricité Stéphanaise;Électricien;76800 St-Étienne;02 35 65 22 22
+Boulangerie de Bonsecours;Boulangerie;76240 Bonsecours;02 35 80 11 11
+Garage de l'Eglise;Garage Automobile;76240 Bonsecours;02 35 80 22 22
+Plomberie de Bonsecours;Plombier;76240 Bonsecours;02 35 80 33 33
+Salon de Coiffure Darnétal;Coiffeur;76160 Darnétal;02 35 08 11 11
+Boucherie Darnétalaise;Boucherie;76160 Darnétal;02 35 08 22 22
+Garage Darnétal Pro;Garage;76160 Darnétal;02 35 08 33 33
+Fleuriste Maromme;Fleuriste;76150 Maromme;02 35 74 11 11
+Plomberie Maromme;Plombier;76150 Maromme;02 35 74 22 22
+Electricité Maromme;Électricien;76150 Maromme;02 35 74 33 33
+Boulangerie de Déville;Boulangerie;76250 Déville;02 35 74 44 44
+Garage de Déville;Garage;76250 Déville;02 35 74 55 55
+Boucherie de Déville;Boucherie;76250 Déville;02 35 74 66 66
