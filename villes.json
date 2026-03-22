@@ -6,10 +6,22 @@
     "potentialClients": 111
   },
   {
+    "id": "armentieres",
+    "name": "Armentières",
+    "file": "villes/Armentieres.csv",
+    "potentialClients": 85
+  },
+  {
     "id": "arras",
     "name": "Arras",
     "file": "villes/arras.csv",
     "potentialClients": 95
+  },
+  {
+    "id": "beauvais",
+    "name": "Beauvais",
+    "file": "villes/Beauvais.csv",
+    "potentialClients": 96
   },
   {
     "id": "berk",
@@ -36,10 +48,58 @@
     "potentialClients": 98
   },
   {
+    "id": "chantilly",
+    "name": "Chantilly",
+    "file": "villes/Chantilly.csv",
+    "potentialClients": 92
+  },
+  {
+    "id": "chateauthierry",
+    "name": "Château-Thierry",
+    "file": "villes/Chateau-Thierry.csv",
+    "potentialClients": 102
+  },
+  {
+    "id": "chauny",
+    "name": "Chauny",
+    "file": "villes/Chauny.csv",
+    "potentialClients": 94
+  },
+  {
+    "id": "clermont",
+    "name": "Clermont",
+    "file": "villes/Clermont.csv",
+    "potentialClients": 92
+  },
+  {
+    "id": "compiegne",
+    "name": "Compiègne",
+    "file": "villes/Compiegne.csv",
+    "potentialClients": 99
+  },
+  {
+    "id": "creil",
+    "name": "Creil",
+    "file": "villes/Creil.csv",
+    "potentialClients": 95
+  },
+  {
+    "id": "denain",
+    "name": "Denain",
+    "file": "villes/Denain.csv",
+    "potentialClients": 86
+  },
+  {
     "id": "douai",
     "name": "Douai",
     "file": "villes/douai.csv",
     "potentialClients": 99
+  },
+  {
+    "id": "doullens",
+    "name": "Doullens",
+    "file": "villes/Doullens.csv",
+    "potentialClients": 81
   },
   {
     "id": "dunkerque",
@@ -54,10 +114,52 @@
     "potentialClients": 92
   },
   {
+    "id": "frivilleescarbotin",
+    "name": "Friville-Escarbotin",
+    "file": "villes/Friville-Escarbotin.csv",
+    "potentialClients": 79
+  },
+  {
     "id": "fruges",
     "name": "Fruges",
     "file": "villes/fruges.csv",
     "potentialClients": 68
+  },
+  {
+    "id": "guise",
+    "name": "Guise",
+    "file": "villes/Guise.csv",
+    "potentialClients": 85
+  },
+  {
+    "id": "hazebrouck",
+    "name": "Hazebrouck",
+    "file": "villes/Hazebrouck.csv",
+    "potentialClients": 81
+  },
+  {
+    "id": "hirson",
+    "name": "Hirson",
+    "file": "villes/Hirson.csv",
+    "potentialClients": 87
+  },
+  {
+    "id": "lambersart",
+    "name": "Lambersart",
+    "file": "villes/Lambersart.csv",
+    "potentialClients": 81
+  },
+  {
+    "id": "laon",
+    "name": "Laon",
+    "file": "villes/Laon.csv",
+    "potentialClients": 99
+  },
+  {
+    "id": "touquetparisplage",
+    "name": "Le Touquet-Paris-Plage",
+    "file": "villes/touquetparisplage.csv",
+    "potentialClients": 85
   },
   {
     "id": "lille",
@@ -66,9 +168,21 @@
     "potentialClients": 135
   },
   {
+    "id": "longueau",
+    "name": "Longueau",
+    "file": "villes/Longueau.csv",
+    "potentialClients": 84
+  },
+  {
     "id": "marconelle",
     "name": "Marconelle",
     "file": "villes/marconelle.csv",
+    "potentialClients": 81
+  },
+  {
+    "id": "marcqenbaroeul",
+    "name": "Marcq-en-Barœul",
+    "file": "villes/Marcq-en-Barœul.csv",
     "potentialClients": 81
   },
   {
@@ -76,6 +190,42 @@
     "name": "Maubeuge",
     "file": "villes/maubeuge.csv",
     "potentialClients": 97
+  },
+  {
+    "id": "meru",
+    "name": "Méru",
+    "file": "villes/Meru.csv",
+    "potentialClients": 89
+  },
+  {
+    "id": "montdidier",
+    "name": "Montdidier",
+    "file": "villes/Montdidier.csv",
+    "potentialClients": 82
+  },
+  {
+    "id": "nogentsuroise",
+    "name": "Nogent-sur-Oise",
+    "file": "villes/Nogent-sur-Oise.csv",
+    "potentialClients": 90
+  },
+  {
+    "id": "noyon",
+    "name": "Noyon",
+    "file": "villes/Noyon.csv",
+    "potentialClients": 90
+  },
+  {
+    "id": "peronne",
+    "name": "Péronne",
+    "file": "villes/Peronne.csv",
+    "potentialClients": 86
+  },
+  {
+    "id": "pontsaintemaxence",
+    "name": "Pont-Sainte-Maxence",
+    "file": "villes/Pont-Sainte-Maxence.csv",
+    "potentialClients": 88
   },
   {
     "id": "saintpolteroise",
@@ -90,10 +240,22 @@
     "potentialClients": 97
   },
   {
-    "id": "touquetparisplage",
-    "name": "Le Touquet-Paris-Plage",
-    "file": "villes/touquetparisplage.csv",
-    "potentialClients": 85
+    "id": "senlis",
+    "name": "Senlis",
+    "file": "villes/Senlis.csv",
+    "potentialClients": 88
+  },
+  {
+    "id": "soissons",
+    "name": "Soissons",
+    "file": "villes/Soissons.csv",
+    "potentialClients": 99
+  },
+  {
+    "id": "tergnier",
+    "name": "Tergnier",
+    "file": "villes/Tergnier.csv",
+    "potentialClients": 90
   },
   {
     "id": "valenciennes",
@@ -102,9 +264,27 @@
     "potentialClients": 108
   },
   {
+    "id": "vervins",
+    "name": "Vervins",
+    "file": "villes/vervins.csv",
+    "potentialClients": 82
+  },
+  {
     "id": "villagenord",
     "name": "Village Nord",
     "file": "villes/villagenord.csv",
     "potentialClients": 108
+  },
+  {
+    "id": "villerscotterets",
+    "name": "Villers-Cotterêts",
+    "file": "villes/Villers-Cotterets.csv",
+    "potentialClients": 88
+  },
+  {
+    "id": "wattrelos",
+    "name": "Wattrelos",
+    "file": "villes/wattrelos.csv",
+    "potentialClients": 83
   }
 ]
